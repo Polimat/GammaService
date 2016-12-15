@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using Advantech.Adam;
+using GammaService.Common;
+
+namespace GammaService
+{
+    public class ModbusDevice
+    {
+        public ModbusDevice(DeviceType deviceType, string ipAddress, int placeId, string printerName, int signalChannelNumber, int? confirmChannelNumber, int timerTickTime)
+        {
+            PrinterName = printerName;
+            PlaceId = placeId;
+            SignalChannelNumber = signalChannelNumber;
+            ConfirmChannelNumber = confirmChannelNumber;
+            InitializeDevice(deviceType, ipAddress);
+            MainTimer = new Timer(ReadCoil, null, 0, timerTickTime);
+        }
+
+        private string PrinterName { get; set; }
+
+        private int PlaceId { get; set; }
+
+        private AdamSocket AdamModbus { get; set; }
+
+        private int m_iDiTotal;
+        private int m_iDoTotal;
+
+        private int SignalChannelNumber { get; set; }
+        private int? ConfirmChannelNumber { get; set; }
+
+        private Timer MainTimer { get; set; }
+
+        private void ReadCoil(object obj)
+        {
+            int iDiStart = 1, iDoStart = 17;
+            int iChTotal;
+            bool[] bDiData, bDoData, bData;
+            //            if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
+            //                !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData)) return;
+            if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
+            !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData)) return;
+            iChTotal = m_iDiTotal + m_iDoTotal;
+            bData = new bool[iChTotal];
+            if (bDiData == null || bDoData == null) return;
+            Array.Copy(bDiData, 0, bData, 0, m_iDiTotal);
+            Array.Copy(bDoData, 0, bData, m_iDiTotal, m_iDoTotal);
+            InStatus = bData[SignalChannelNumber-1];
+        }
+
+        private void InitializeDevice(DeviceType deviceType, string ipAddress)
+        {
+            AdamModbus = new AdamSocket();
+            AdamModbus.SetTimeout(1000, 1000, 1000); // set timeout for TCP
+            if (AdamModbus.Connect(ipAddress, ProtocolType.Tcp, 502))
+                Console.WriteLine(@"Инициализация прошла успешно");
+            else
+            {
+                Console.WriteLine(@"Не удалось инициализировать");
+            }
+            switch (deviceType)
+            {
+                case DeviceType.ADAM6060:
+                    m_iDiTotal = 6;
+                    m_iDoTotal = 6;
+                    break;
+            }
+        }
+
+        private bool _inStatus = true;
+
+        public bool InStatus
+        {
+            get { return _inStatus; }
+            set
+            {
+                if (_inStatus == value) return;
+                _inStatus = value;
+                if (InStatus) return;
+                var docId = Db.CreateNewPallet(PlaceId);
+                if (docId != null)
+                {
+                    ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2);
+                }
+            }
+        }
+    }
+}
