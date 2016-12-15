@@ -30,7 +30,15 @@ namespace GammaService.Common
                 report.PrintSettings.ShowDialog = false;
                 report.PrintSettings.Copies = numCopies;
                 report.PrintSettings.Printer = printerName;
-                report.Print();
+                try
+                {
+                    report.Print();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
             }
         }
 
