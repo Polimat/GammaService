@@ -13,6 +13,8 @@ namespace GammaService
     {
         public ModbusDevice(DeviceType deviceType, string ipAddress, int placeId, string printerName, int signalChannelNumber, int? confirmChannelNumber, int timerTickTime)
         {
+            IpAddress = ipAddress;
+            DeviceType = deviceType;
             PrinterName = printerName;
             PlaceId = placeId;
             SignalChannelNumber = signalChannelNumber;
@@ -21,7 +23,12 @@ namespace GammaService
             MainTimer = new Timer(ReadCoil, null, 0, timerTickTime);
         }
 
-        private string PrinterName { get; set; }
+        private string IpAddress { get; set; }
+        private DeviceType DeviceType { get; set; }
+
+        public bool IsConnected { get; private set; }
+
+        public string PrinterName { get; set; }
 
         private int PlaceId { get; set; }
 
@@ -37,6 +44,11 @@ namespace GammaService
 
         private void ReadCoil(object obj)
         {
+            if (!AdamModbus.Connected)
+            {
+                IsConnected = false;
+                return;
+            }
             int iDiStart = 1, iDoStart = 17;
             int iChTotal;
             bool[] bDiData, bDoData, bData;
@@ -57,10 +69,14 @@ namespace GammaService
             AdamModbus = new AdamSocket();
             AdamModbus.SetTimeout(1000, 1000, 1000); // set timeout for TCP
             if (AdamModbus.Connect(ipAddress, ProtocolType.Tcp, 502))
-                Console.WriteLine(@"Инициализация прошла успешно");
+            {
+                Console.WriteLine(DateTime.Now + "Инициализация прошла успешно: " + PrinterName);
+                IsConnected = true;
+            }
             else
             {
-                Console.WriteLine(@"Не удалось инициализировать");
+                Console.WriteLine(DateTime.Now + "Не удалось инициализировать: " + PrinterName);
+                IsConnected = false;
             }
             switch (deviceType)
             {
@@ -71,9 +87,14 @@ namespace GammaService
             }
         }
 
+        public void ReinitializeDevice()
+        {
+            InitializeDevice(DeviceType, IpAddress);
+        }
+
         private bool _inStatus = true;
 
-        public bool InStatus
+        private bool InStatus
         {
             get { return _inStatus; }
             set

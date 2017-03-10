@@ -27,13 +27,30 @@ namespace GammaService
                 }
             }
             Console.WriteLine("Press ESC to stop");
+            ConsoleKey key;
             do
             {
                 while (!Console.KeyAvailable)
                 {
                     // Do something
                 }
-            } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+                key = Console.ReadKey(true).Key;
+                switch (key)
+                {
+                    case ConsoleKey.F5:
+                        foreach (var device in modbuseDevices.Where(d => !d.IsConnected))
+                        {
+                            device.ReinitializeDevice();
+                        }
+                        break;
+                    case ConsoleKey.F2:
+                        foreach (var device in modbuseDevices)
+                        {
+                            Console.WriteLine(device.IsConnected + " " + (device.IsConnected ? "IsConnected" : "Disconnected"));
+                        }
+                        break;
+                }
+            } while (key != ConsoleKey.Escape);
             /*
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
