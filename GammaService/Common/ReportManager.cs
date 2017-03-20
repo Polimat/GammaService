@@ -35,6 +35,7 @@ namespace GammaService.Common
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
                     Console.WriteLine(ex.Message);
                 }
             }
@@ -57,13 +58,12 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
                 Console.WriteLine(ex.Message);
             }
         }
 
         private static readonly EnvironmentSettings ReportSettings = new EnvironmentSettings();
 
-//        private static Guid CurrentReportID { get; set; }
-        
     }
 }

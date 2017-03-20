@@ -32,7 +32,7 @@ namespace GammaService
                         DocID = docId,
                         Date = currentDateTime,
                         DocTypeID = (int) DocType.DocProduction,
-                        IsConfirmed = false,
+                        IsConfirmed = true,
                         PlaceID = userInfo.PlaceID,
                         ShiftID = userInfo.ShiftID,
                         UserID = userInfo.UserID,
@@ -124,6 +124,7 @@ namespace GammaService
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
                         Console.WriteLine(ex.Message + ":" + ex.InnerException);
                         return null;
                     }
@@ -132,6 +133,7 @@ namespace GammaService
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
                 Console.WriteLine(ex.Message + ":" + ex.InnerException);
                 return null;
             }

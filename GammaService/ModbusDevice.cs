@@ -41,12 +41,36 @@ namespace GammaService
         private int? ConfirmChannelNumber { get; set; }
 
         private Timer MainTimer { get; set; }
+        private Timer RestoreConnectTimer { get; set; }
+
+        private void RestoreConnect(object obj)
+        {
+            if (!AdamModbus.Connected)
+            {
+                ReinitializeDevice();
+                if (AdamModbus.Connected)
+                {
+                    IsConnected = true;
+                    Console.WriteLine(DateTime.Now + ": Связь с " + PrinterName + " восстановлена");
+                }
+                RestoreConnectTimer?.Dispose();
+                RestoreConnectTimer = null;
+            }
+            else
+            {
+                RestoreConnectTimer?.Dispose();
+                RestoreConnectTimer = null;
+            }
+        }
 
         private void ReadCoil(object obj)
         {
             if (!AdamModbus.Connected)
             {
                 IsConnected = false;
+                if (RestoreConnectTimer != null) return;
+                Console.WriteLine(DateTime.Now + " :Пропала связь с " + PrinterName);
+                RestoreConnectTimer = new Timer(RestoreConnect, null, 0, 1000);
                 return;
             }
             int iDiStart = 1, iDoStart = 17;
@@ -70,12 +94,14 @@ namespace GammaService
             AdamModbus.SetTimeout(1000, 1000, 1000); // set timeout for TCP
             if (AdamModbus.Connect(ipAddress, ProtocolType.Tcp, 502))
             {
-                Console.WriteLine(DateTime.Now + "Инициализация прошла успешно: " + PrinterName);
+                if (RestoreConnectTimer == null)
+                    Console.WriteLine(DateTime.Now + "Инициализация прошла успешно: " + PrinterName);
                 IsConnected = true;
             }
             else
             {
-                Console.WriteLine(DateTime.Now + "Не удалось инициализировать: " + PrinterName);
+                if (RestoreConnectTimer == null)
+                    Console.WriteLine(DateTime.Now + "Не удалось инициализировать: " + PrinterName);
                 IsConnected = false;
             }
             switch (deviceType)
