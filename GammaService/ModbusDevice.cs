@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using Advantech.Adam;
 using GammaService.Common;
@@ -48,11 +45,9 @@ namespace GammaService
             if (!AdamModbus.Connected)
             {
                 ReinitializeDevice();
-                if (AdamModbus.Connected)
-                {
-                    IsConnected = true;
-                    Console.WriteLine(DateTime.Now + ": Связь с " + PrinterName + " восстановлена");
-                }
+                if (!AdamModbus.Connected) return;
+                IsConnected = true;
+                Console.WriteLine(DateTime.Now + ": Связь с " + PrinterName + " восстановлена");
                 RestoreConnectTimer?.Dispose();
                 RestoreConnectTimer = null;
             }

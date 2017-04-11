@@ -11,6 +11,7 @@
     <AssemblyName>GammaService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,6 +57,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -118,6 +120,7 @@
     <Compile Include="GammaService.Designer.cs">
       <DependentUpon>GammaService.cs</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IPrinterService.cs" />
     <Compile Include="ModbusDevice.cs" />
     <Compile Include="ModbusDevices.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
@@ -145,6 +148,7 @@
     <Compile Include="Reports.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Services\PrinterService.cs" />
     <Compile Include="Templates.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
@@ -156,7 +160,9 @@
     </EntityDeploy>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.Config" />
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="GammaEntities.edmx.diagram">
       <DependentUpon>GammaEntities.edmx</DependentUpon>
     </None>
@@ -176,6 +182,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
