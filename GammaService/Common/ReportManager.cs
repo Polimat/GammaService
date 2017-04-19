@@ -21,19 +21,25 @@ namespace GammaService.Common
                 {
                     using (var gammaBase = new GammaEntities())
                     {
-                        var reportTemplate = (from rep in gammaBase.Templates where rep.ReportID == reportid select rep.Template).FirstOrDefault();
+                        var reportTemplate = (from rep in gammaBase.Templates
+                            where rep.ReportID == reportid
+                            select rep.Template).FirstOrDefault();
                         if (reportTemplate == null) return;
-                        var stream = new MemoryStream(reportTemplate);
-                        report.Load(stream);
-                        if (paramId != null) report.SetParameterValue("ParamID", paramId);
-                        report.Dictionary.Connections[0].ConnectionString = gammaBase.Database.Connection.ConnectionString;
-                        report.PrintSettings.ShowDialog = false;
-                        report.PrintSettings.Copies = numCopies;
-                        report.PrintSettings.Printer = printerName;
-                        report.Print();
+                        using (var stream = new MemoryStream(reportTemplate))
+                        {
+                            report.Load(stream);
+                            if (paramId != null) report.SetParameterValue("ParamID",
+                            paramId);
+                            report.Dictionary.Connections[0].ConnectionString =
+                            gammaBase.Database.Connection.ConnectionString;
+                            report.PrintSettings.ShowDialog = false;
+                            report.PrintSettings.Copies = numCopies;
+                            report.PrintSettings.Printer = printerName;
+                            report.Print();
+                        }
                     }
                 }
-                catch (Exception ex)
+            catch (Exception ex)
                 {
                     Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
                     Console.WriteLine(ex.Message);
@@ -41,7 +47,7 @@ namespace GammaService.Common
             }
         }
 
-        public static void PrintReport(string reportName, string printerName, string reportFolder = null, Guid? paramId = null, int numCopies = 1)
+        public static bool PrintReport(string reportName, string printerName, string reportFolder = null, Guid? paramId = null, int numCopies = 1)
         {
             try
             {
@@ -60,7 +66,9 @@ namespace GammaService.Common
             {
                 Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
                 Console.WriteLine(ex.Message);
+                return false;
             }
+            return true;
         }
 
         private static readonly EnvironmentSettings ReportSettings = new EnvironmentSettings();

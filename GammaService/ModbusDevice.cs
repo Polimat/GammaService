@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using Advantech.Adam;
 using GammaService.Common;
 
@@ -37,7 +39,7 @@ namespace GammaService
         private int SignalChannelNumber { get; set; }
         private int? ConfirmChannelNumber { get; set; }
 
-        private Timer MainTimer { get; set; }
+        private Timer MainTimer { get; }
         private Timer RestoreConnectTimer { get; set; }
 
         private void RestoreConnect(object obj)
@@ -85,6 +87,7 @@ namespace GammaService
 
         private void InitializeDevice(DeviceType deviceType, string ipAddress)
         {
+            //AdamModbus?.Disconnect();
             AdamModbus = new AdamSocket();
             AdamModbus.SetTimeout(1000, 1000, 1000); // set timeout for TCP
             if (AdamModbus.Connect(ipAddress, ProtocolType.Tcp, 502))
@@ -113,6 +116,8 @@ namespace GammaService
             InitializeDevice(DeviceType, IpAddress);
         }
 
+        private ConcurrentQueue<Guid> FaultIds { get; } = new ConcurrentQueue<Guid>();
+
         private bool _inStatus = true;
 
         private bool InStatus
@@ -124,11 +129,29 @@ namespace GammaService
                 _inStatus = value;
                 if (InStatus) return;
                 var docId = Db.CreateNewPallet(PlaceId);
-                if (docId != null)
+                if (docId == null) return;
+                if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2)) return;
+                FaultIds.Enqueue((Guid)docId);
+                if (!FaultPrintTaskIsRunning)
+                    Task.Factory.StartNew(PrintFromQueue);
+            }
+        }
+
+        private bool FaultPrintTaskIsRunning { get; set; }
+
+        private void PrintFromQueue()
+        {
+            FaultPrintTaskIsRunning = true;
+            while (FaultIds.Count > 0)
+            {
+                Guid id;
+                if (!FaultIds.TryDequeue(out id)) continue;
+                if (!ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", id, 2))
                 {
-                    ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2);
+                    FaultIds.Enqueue(id);
                 }
             }
+            FaultPrintTaskIsRunning = false;
         }
     }
 }

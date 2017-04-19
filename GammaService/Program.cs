@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.ServiceModel;
-using System.ServiceProcess;
-using System.Text;
 using GammaService.Common;
 using GammaService.Services;
 
@@ -28,23 +26,20 @@ namespace GammaService
                         (int)device.SignalChannelNumber, device.ConfirmChannelNumber, device.ModbusDevices.TimerTick));
                 }
             }
-
-            if (myServiceHost != null)
-            {
-                myServiceHost.Close();
-            }
+/*
             myServiceHost = new ServiceHost(typeof(PrinterService));
             //myServiceHost.AddDefaultEndpoints();
             myServiceHost.Open();
-
+*/
             Console.WriteLine("Press ESC to stop");
             ConsoleKey key;
             do
             {
+                /*
                 while (!Console.KeyAvailable)
                 {
                     // Do something
-                }
+                }*/
                 key = Console.ReadKey(true).Key;
                 switch (key)
                 {
