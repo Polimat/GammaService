@@ -35,7 +35,8 @@ namespace GammaService.Common
                             report.PrintSettings.ShowDialog = false;
                             report.PrintSettings.Copies = numCopies;
                             report.PrintSettings.Printer = printerName;
-                            report.Print();
+                            report.Prepare();
+                            report.PrintPrepared();
                         }
                     }
                 }
