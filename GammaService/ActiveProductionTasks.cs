@@ -18,5 +18,6 @@ namespace GammaService
         public Nullable<System.Guid> ProductionTaskID { get; set; }
     
         public virtual ProductionTasks ProductionTasks { get; set; }
+        public virtual Places Places { get; set; }
     }
 }

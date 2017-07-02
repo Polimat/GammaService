@@ -22,18 +22,20 @@ namespace GammaService
         }
     
         public System.Guid C1CCharacteristicID { get; set; }
-        public Nullable<System.Guid> C1CNomenclatureID { get; set; }
+        public System.Guid C1CNomenclatureID { get; set; }
         public string C1CCode { get; set; }
         public Nullable<System.Guid> MeasureUnitPackage { get; set; }
         public Nullable<System.Guid> MeasureUnitPallet { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
+        public string PrintName { get; set; }
+        public string PackageLabelPath { get; set; }
     
+        public virtual C1CMeasureUnits C1CMeasureUnits { get; set; }
+        public virtual C1CMeasureUnits C1CMeasureUnitsPallet { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProductionTasks> ProductionTasks { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProductPalletItems> ProductPalletItems { get; set; }
-        public virtual C1CMeasureUnits C1CMeasureUnits { get; set; }
-        public virtual C1CMeasureUnits C1CMeasureUnitsPallet { get; set; }
     }
 }

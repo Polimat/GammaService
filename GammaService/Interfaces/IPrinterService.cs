@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ServiceModel;
 
 namespace GammaService.Interfaces
@@ -11,5 +8,8 @@ namespace GammaService.Interfaces
     {
         [OperationContract]
         bool PrintPallet(Guid productId);
+
+		[OperationContract]
+	    bool ActivateProductionTask(Guid productionTaskId);
     }
 }

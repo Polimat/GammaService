@@ -26,20 +26,15 @@ namespace GammaService
                         (int)device.SignalChannelNumber, device.ConfirmChannelNumber, device.ModbusDevices.TimerTick));
                 }
             }
-/*
+
             myServiceHost = new ServiceHost(typeof(PrinterService));
             //myServiceHost.AddDefaultEndpoints();
             myServiceHost.Open();
-*/
+
             Console.WriteLine("Press ESC to stop");
             ConsoleKey key;
             do
             {
-                /*
-                while (!Console.KeyAvailable)
-                {
-                    // Do something
-                }*/
                 key = Console.ReadKey(true).Key;
                 switch (key)
                 {

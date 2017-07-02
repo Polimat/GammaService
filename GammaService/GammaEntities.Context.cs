@@ -31,8 +31,6 @@ namespace GammaService
         public virtual DbSet<Reports> Reports { get; set; }
         public virtual DbSet<Templates> Templates { get; set; }
         public virtual DbSet<ModbusDevices> ModbusDevices { get; set; }
-        public virtual DbSet<PlaceRemotePrintingSettings> PlaceRemotePrintingSettings { get; set; }
-        public virtual DbSet<RemotePrinters> RemotePrinters { get; set; }
         public virtual DbSet<CurrentPlaceUsers> CurrentPlaceUsers { get; set; }
         public virtual DbSet<DocProduction> DocProduction { get; set; }
         public virtual DbSet<DocProductionProducts> DocProductionProducts { get; set; }
@@ -43,8 +41,11 @@ namespace GammaService
         public virtual DbSet<ProductPallets> ProductPallets { get; set; }
         public virtual DbSet<Products> Products { get; set; }
         public virtual DbSet<ProductionTasks> ProductionTasks { get; set; }
-        public virtual DbSet<C1CCharacteristics> C1CCharacteristics { get; set; }
         public virtual DbSet<C1CMeasureUnits> C1CMeasureUnits { get; set; }
+        public virtual DbSet<C1CCharacteristics> C1CCharacteristics { get; set; }
+        public virtual DbSet<PlaceRemotePrintingSettings> PlaceRemotePrintingSettings { get; set; }
+        public virtual DbSet<Places> Places { get; set; }
+        public virtual DbSet<RemotePrinters> RemotePrinters { get; set; }
     
         public virtual ObjectResult<Nullable<System.Guid>> GetActiveSourceSpools(Nullable<int> placeID)
         {

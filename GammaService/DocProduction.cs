@@ -25,6 +25,7 @@ namespace GammaService
         public Nullable<System.Guid> ProductionTaskID { get; set; }
         public Nullable<int> InPlaceID { get; set; }
         public Nullable<bool> HasWarnings { get; set; }
+        public Nullable<System.Guid> DocOrderId { get; set; }
     
         public virtual Docs Docs { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -32,5 +33,6 @@ namespace GammaService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DocWithdrawal> DocWithdrawal { get; set; }
         public virtual ProductionTasks ProductionTasks { get; set; }
+        public virtual Places Places { get; set; }
     }
 }

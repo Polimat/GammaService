@@ -35,5 +35,6 @@ namespace GammaService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DocProduction> DocProduction { get; set; }
         public virtual C1CCharacteristics C1CCharacteristics { get; set; }
+        public virtual Places Places { get; set; }
     }
 }

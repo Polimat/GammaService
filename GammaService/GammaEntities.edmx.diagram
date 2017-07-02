@@ -4,16 +4,12 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="e2f2450c70094b5a9f21144cb1e368c2" Name="Diagram1" ZoomLevel="85" SnapToGrid="true">
+      <Diagram DiagramId="e2f2450c70094b5a9f21144cb1e368c2" Name="Diagram1" ZoomLevel="112" SnapToGrid="true">
         <EntityTypeShape EntityType="GammaNewModel.ActiveProductionTasks" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="GammaNewModel.Reports" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="GammaNewModel.Templates" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
         <AssociationConnector Association="GammaNewModel.FK_Templates_Reports" ManuallyRouted="false" />
         <EntityTypeShape EntityType="GammaNewModel.ModbusDevices" Width="1.5" PointX="3.375" PointY="4.875" />
-        <EntityTypeShape EntityType="GammaNewModel.PlaceRemotePrintingSettings" Width="1.5" PointX="5.625" PointY="4.875" />
-        <AssociationConnector Association="GammaNewModel.FK_PlaceRemotePrintingSettings_ModbusDevices" />
-        <EntityTypeShape EntityType="GammaNewModel.RemotePrinters" Width="1.5" PointX="3.375" PointY="8.125" />
-        <AssociationConnector Association="GammaNewModel.FK_PlaceRemotePrintingSettings_RemotePrinters" />
         <EntityTypeShape EntityType="GammaNewModel.CurrentPlaceUsers" Width="1.875" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="GammaNewModel.DocProduction" Width="1.5" PointX="10.625" PointY="2.375" />
         <EntityTypeShape EntityType="GammaNewModel.DocProductionProducts" Width="1.5" PointX="12.875" PointY="5.125" />
@@ -35,12 +31,24 @@
         <EntityTypeShape EntityType="GammaNewModel.ProductionTasks" Width="1.5" PointX="10.375" PointY="8.25" />
         <AssociationConnector Association="GammaNewModel.FK_ActiveProductionTasks_ProductionTasks" />
         <AssociationConnector Association="GammaNewModel.FK_DocProduction_ProductionTasks" />
-        <EntityTypeShape EntityType="GammaNewModel.C1CCharacteristics" Width="3.375" PointX="4.375" PointY="11.625" />
-        <AssociationConnector Association="GammaNewModel.FK_ProductionTasks_1CCharacteristics" />
-        <AssociationConnector Association="GammaNewModel.FK_ProductPalletItems_1CCharacteristics" />
         <EntityTypeShape EntityType="GammaNewModel.C1CMeasureUnits" Width="1.5" PointX="0.75" PointY="11.75" />
+        <EntityTypeShape EntityType="GammaNewModel.C1CCharacteristics" Width="1.5" PointX="3" PointY="11.25" />
         <AssociationConnector Association="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits" />
         <AssociationConnector Association="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits1" />
+        <AssociationConnector Association="GammaNewModel.FK_ProductionTasks_1CCharacteristics" />
+        <AssociationConnector Association="GammaNewModel.FK_ProductPalletItems_1CCharacteristics" />
+        <EntityTypeShape EntityType="GammaNewModel.PlaceRemotePrintingSettings" Width="1.5" PointX="7.875" PointY="5" />
+        <EntityTypeShape EntityType="GammaNewModel.Places" Width="1.5" PointX="0.75" PointY="3.375" />
+        <AssociationConnector Association="GammaNewModel.FK_ActiveProductionTasks_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_CurrentPlaceUsers_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_DocProduction_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_Docs_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_DocWithdrawal_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_PlaceRemotePrintingSettings_ModbusDevices" />
+        <AssociationConnector Association="GammaNewModel.FK_PlaceRemotePrintingSettings_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_ProductionTasks_Places" />
+        <EntityTypeShape EntityType="GammaNewModel.RemotePrinters" Width="1.5" PointX="5.375" PointY="12.875" />
+        <AssociationConnector Association="GammaNewModel.FK_PlaceRemotePrintingSettings_RemotePrinters" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

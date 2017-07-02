@@ -15,12 +15,13 @@ namespace GammaService
     public partial class PlaceRemotePrintingSettings
     {
         public int PlaceID { get; set; }
-        public Nullable<int> ModbusDeviceID { get; set; }
-        public Nullable<int> RemotePrinterID { get; set; }
-        public Nullable<int> SignalChannelNumber { get; set; }
+        public int ModbusDeviceID { get; set; }
+        public int RemotePrinterID { get; set; }
+        public int SignalChannelNumber { get; set; }
         public Nullable<int> ConfirmChannelNumber { get; set; }
     
         public virtual ModbusDevices ModbusDevices { get; set; }
+        public virtual Places Places { get; set; }
         public virtual RemotePrinters RemotePrinters { get; set; }
     }
 }
