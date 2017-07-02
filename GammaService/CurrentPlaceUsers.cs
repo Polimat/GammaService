@@ -18,5 +18,7 @@ namespace GammaService
         public System.Guid UserID { get; set; }
         public byte ShiftID { get; set; }
         public string PrintName { get; set; }
+    
+        public virtual Places Places { get; set; }
     }
 }

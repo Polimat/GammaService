@@ -26,8 +26,12 @@ namespace GammaService
         public System.DateTime Date { get; set; }
         public string Comment { get; set; }
         public Nullable<bool> IsFromOldGamma { get; set; }
+        public Nullable<int> PersonID { get; set; }
+        public Nullable<byte> BranchID { get; set; }
+        public Nullable<System.Guid> PersonGuid { get; set; }
     
         public virtual DocProduction DocProduction { get; set; }
         public virtual DocWithdrawal DocWithdrawal { get; set; }
+        public virtual Places Places { get; set; }
     }
 }

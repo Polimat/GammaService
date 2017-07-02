@@ -21,7 +21,7 @@ namespace GammaService
         }
     
         public int ModbusDeviceID { get; set; }
-        public Nullable<int> ModbusDeviceTypeID { get; set; }
+        public int ModbusDeviceTypeID { get; set; }
         public string IPAddress { get; set; }
         public string Name { get; set; }
         public int TimerTick { get; set; }
