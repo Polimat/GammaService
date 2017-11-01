@@ -134,7 +134,7 @@
     <Compile Include="ProductionTasks.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="ProductPalletItems.cs">
+    <Compile Include="ProductItems.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="ProductPallets.cs">

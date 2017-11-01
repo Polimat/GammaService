@@ -59,11 +59,11 @@ namespace GammaService
                                         ProductPallets = new ProductPallets
                                         {
                                             ProductID = productId,
-                                            ProductPalletItems = new List<ProductPalletItems>
+                                            ProductItems = new List<ProductItems>
                                             {
-                                                new ProductPalletItems
+                                                new ProductItems
                                                 {
-                                                    ProductPalletItemID = SqlGuidUtil.NewSequentialid(),
+                                                    ProductItemID = SqlGuidUtil.NewSequentialid(),
                                                     ProductID = productId,
                                                     C1CNomenclatureID = (Guid) productionTask.C1CNomenclatureID,
                                                     C1CCharacteristicID = (Guid) productionTask.C1CCharacteristicID,

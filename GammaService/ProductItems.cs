@@ -12,9 +12,9 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class ProductPalletItems
+    public partial class ProductItems
     {
-        public System.Guid ProductPalletItemID { get; set; }
+        public System.Guid ProductItemID { get; set; }
         public System.Guid ProductID { get; set; }
         public System.Guid C1CNomenclatureID { get; set; }
         public System.Guid C1CCharacteristicID { get; set; }

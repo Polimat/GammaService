@@ -37,7 +37,7 @@ namespace GammaService
         public virtual DbSet<Docs> Docs { get; set; }
         public virtual DbSet<DocWithdrawal> DocWithdrawal { get; set; }
         public virtual DbSet<DocWithdrawalProducts> DocWithdrawalProducts { get; set; }
-        public virtual DbSet<ProductPalletItems> ProductPalletItems { get; set; }
+        public virtual DbSet<ProductItems> ProductItems { get; set; }
         public virtual DbSet<ProductPallets> ProductPallets { get; set; }
         public virtual DbSet<Products> Products { get; set; }
         public virtual DbSet<ProductionTasks> ProductionTasks { get; set; }

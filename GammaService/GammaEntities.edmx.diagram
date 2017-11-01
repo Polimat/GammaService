@@ -16,13 +16,13 @@
         <EntityTypeShape EntityType="GammaNewModel.Docs" Width="1.5" PointX="8.375" PointY="1.625" />
         <EntityTypeShape EntityType="GammaNewModel.DocWithdrawal" Width="1.5" PointX="12.875" PointY="1.5" />
         <EntityTypeShape EntityType="GammaNewModel.DocWithdrawalProducts" Width="1.5" PointX="15.125" PointY="1.5" />
-        <EntityTypeShape EntityType="GammaNewModel.ProductPalletItems" Width="1.5" PointX="7.625" PointY="8.875" />
+        <EntityTypeShape EntityType="GammaNewModel.ProductItems" Width="1.5" PointX="7.625" PointY="8.875" />
         <EntityTypeShape EntityType="GammaNewModel.ProductPallets" Width="1.5" PointX="5.375" PointY="9.375" />
         <AssociationConnector Association="GammaNewModel.FK_DocProduction_Docs" />
         <AssociationConnector Association="GammaNewModel.FK_DocProductionProducts_DocProduction" />
         <AssociationConnector Association="GammaNewModel.FK_DocWithdrawal_Docs" />
         <AssociationConnector Association="GammaNewModel.FK_DocWithdrawalProducts_DocWithdrawal" />
-        <AssociationConnector Association="GammaNewModel.FK_ProductPalletItems_ProductPallets" />
+        <AssociationConnector Association="GammaNewModel.FK_ProductItems_ProductPallets" />
         <AssociationConnector Association="GammaNewModel.DocProductionWithdrawals" />
         <EntityTypeShape EntityType="GammaNewModel.Products" Width="1.5" PointX="1.125" PointY="7" />
         <AssociationConnector Association="GammaNewModel.FK_DocProductionProducts_Products" />
@@ -36,7 +36,7 @@
         <AssociationConnector Association="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits" />
         <AssociationConnector Association="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits1" />
         <AssociationConnector Association="GammaNewModel.FK_ProductionTasks_1CCharacteristics" />
-        <AssociationConnector Association="GammaNewModel.FK_ProductPalletItems_1CCharacteristics" />
+        <AssociationConnector Association="GammaNewModel.FK_ProductItems_1CCharacteristics" />
         <EntityTypeShape EntityType="GammaNewModel.PlaceRemotePrintingSettings" Width="1.5" PointX="7.875" PointY="5" />
         <EntityTypeShape EntityType="GammaNewModel.Places" Width="1.5" PointX="0.75" PointY="3.375" />
         <AssociationConnector Association="GammaNewModel.FK_ActiveProductionTasks_Places" />

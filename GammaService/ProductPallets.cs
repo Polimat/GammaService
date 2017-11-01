@@ -17,14 +17,14 @@ namespace GammaService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ProductPallets()
         {
-            this.ProductPalletItems = new HashSet<ProductPalletItems>();
+            this.ProductItems = new HashSet<ProductItems>();
         }
     
         public System.Guid ProductID { get; set; }
         public Nullable<int> IndexNumber { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProductPalletItems> ProductPalletItems { get; set; }
+        public virtual ICollection<ProductItems> ProductItems { get; set; }
         public virtual Products Products { get; set; }
     }
 }

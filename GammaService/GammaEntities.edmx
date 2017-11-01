@@ -167,11 +167,11 @@
           <Property Name="DateBegin" Type="datetime" />
           <Property Name="DateEnd" Type="datetime" />
         </EntityType>
-        <EntityType Name="ProductPalletItems">
+        <EntityType Name="ProductItems">
           <Key>
-            <PropertyRef Name="ProductPalletItemID" />
+            <PropertyRef Name="ProductItemID" />
           </Key>
-          <Property Name="ProductPalletItemID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="ProductItemID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="ProductID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="1CNomenclatureID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="1CCharacteristicID" Type="uniqueidentifier" Nullable="false" />
@@ -479,26 +479,26 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProductPalletItems_1CCharacteristics">
+        <Association Name="FK_ProductItems_1CCharacteristics">
           <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="1" />
-          <End Role="ProductPalletItems" Type="Self.ProductPalletItems" Multiplicity="*" />
+          <End Role="ProductItems" Type="Self.ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="1CCharacteristics">
               <PropertyRef Name="1CCharacteristicID" />
             </Principal>
-            <Dependent Role="ProductPalletItems">
+            <Dependent Role="ProductItems">
               <PropertyRef Name="1CCharacteristicID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProductPalletItems_ProductPallets">
+        <Association Name="FK_ProductItems_ProductPallets">
           <End Role="ProductPallets" Type="Self.ProductPallets" Multiplicity="1" />
-          <End Role="ProductPalletItems" Type="Self.ProductPalletItems" Multiplicity="*" />
+          <End Role="ProductItems" Type="Self.ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="ProductPallets">
               <PropertyRef Name="ProductID" />
             </Principal>
-            <Dependent Role="ProductPalletItems">
+            <Dependent Role="ProductItems">
               <PropertyRef Name="ProductID" />
             </Dependent>
           </ReferentialConstraint>
@@ -545,7 +545,7 @@
           <EntitySet Name="PlaceRemotePrintingSettings" EntityType="Self.PlaceRemotePrintingSettings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Places" EntityType="Self.Places" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProductionTasks" EntityType="Self.ProductionTasks" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="ProductPalletItems" EntityType="Self.ProductPalletItems" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProductItems" EntityType="Self.ProductItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProductPallets" EntityType="Self.ProductPallets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RemotePrinters" EntityType="Self.RemotePrinters" Schema="dbo" store:Type="Tables" />
@@ -635,13 +635,13 @@
             <End Role="Places" EntitySet="Places" />
             <End Role="ProductionTasks" EntitySet="ProductionTasks" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProductPalletItems_1CCharacteristics" Association="Self.FK_ProductPalletItems_1CCharacteristics">
+          <AssociationSet Name="FK_ProductItems_1CCharacteristics" Association="Self.FK_ProductItems_1CCharacteristics">
             <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
-            <End Role="ProductPalletItems" EntitySet="ProductPalletItems" />
+            <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProductPalletItems_ProductPallets" Association="Self.FK_ProductPalletItems_ProductPallets">
+          <AssociationSet Name="FK_ProductItems_ProductPallets" Association="Self.FK_ProductItems_ProductPallets">
             <End Role="ProductPallets" EntitySet="ProductPallets" />
-            <End Role="ProductPalletItems" EntitySet="ProductPalletItems" />
+            <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
           <AssociationSet Name="FK_ProductPallets_Products1" Association="Self.FK_ProductPallets_Products1">
             <End Role="Products" EntitySet="Products" />
@@ -713,7 +713,7 @@
           <EntitySet Name="Docs" EntityType="GammaNewModel.Docs" />
           <EntitySet Name="DocWithdrawal" EntityType="GammaNewModel.DocWithdrawal" />
           <EntitySet Name="DocWithdrawalProducts" EntityType="GammaNewModel.DocWithdrawalProducts" />
-          <EntitySet Name="ProductPalletItems" EntityType="GammaNewModel.ProductPalletItems" />
+          <EntitySet Name="ProductItems" EntityType="GammaNewModel.ProductItems" />
           <EntitySet Name="ProductPallets" EntityType="GammaNewModel.ProductPallets" />
           <AssociationSet Name="FK_DocProduction_Docs" Association="GammaNewModel.FK_DocProduction_Docs">
             <End Role="Docs" EntitySet="Docs" />
@@ -731,9 +731,9 @@
             <End Role="DocWithdrawal" EntitySet="DocWithdrawal" />
             <End Role="DocWithdrawalProducts" EntitySet="DocWithdrawalProducts" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProductPalletItems_ProductPallets" Association="GammaNewModel.FK_ProductPalletItems_ProductPallets">
+          <AssociationSet Name="FK_ProductItems_ProductPallets" Association="GammaNewModel.FK_ProductItems_ProductPallets">
             <End Role="ProductPallets" EntitySet="ProductPallets" />
-            <End Role="ProductPalletItems" EntitySet="ProductPalletItems" />
+            <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
           <AssociationSet Name="DocProductionWithdrawals" Association="GammaNewModel.DocProductionWithdrawals">
             <End Role="DocProduction" EntitySet="DocProduction" />
@@ -778,9 +778,9 @@
             <End Role="C1CCharacteristics" EntitySet="C1CCharacteristics" />
             <End Role="ProductionTasks" EntitySet="ProductionTasks" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProductPalletItems_1CCharacteristics" Association="GammaNewModel.FK_ProductPalletItems_1CCharacteristics">
+          <AssociationSet Name="FK_ProductItems_1CCharacteristics" Association="GammaNewModel.FK_ProductItems_1CCharacteristics">
             <End Role="C1CCharacteristics" EntitySet="C1CCharacteristics" />
-            <End Role="ProductPalletItems" EntitySet="ProductPalletItems" />
+            <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
           <EntitySet Name="PlaceRemotePrintingSettings" EntityType="GammaNewModel.PlaceRemotePrintingSettings" />
           <EntitySet Name="Places" EntityType="GammaNewModel.Places" />
@@ -917,24 +917,24 @@
           <NavigationProperty Name="DocWithdrawal" Relationship="GammaNewModel.FK_DocWithdrawalProducts_DocWithdrawal" FromRole="DocWithdrawalProducts" ToRole="DocWithdrawal" />
           <NavigationProperty Name="Products" Relationship="GammaNewModel.FK_DocWithdrawalProducts_Products" FromRole="DocWithdrawalProducts" ToRole="Products" />
         </EntityType>
-        <EntityType Name="ProductPalletItems">
+        <EntityType Name="ProductItems">
           <Key>
-            <PropertyRef Name="ProductPalletItemID" />
+            <PropertyRef Name="ProductItemID" />
           </Key>
-          <Property Name="ProductPalletItemID" Type="Guid" Nullable="false" />
+          <Property Name="ProductItemID" Type="Guid" Nullable="false" />
           <Property Name="ProductID" Type="Guid" Nullable="false" />
           <Property Name="C1CNomenclatureID" Type="Guid" Nullable="false" />
           <Property Name="C1CCharacteristicID" Type="Guid" Nullable="false" />
           <Property Name="Quantity" Type="Int32" />
-          <NavigationProperty Name="ProductPallets" Relationship="GammaNewModel.FK_ProductPalletItems_ProductPallets" FromRole="ProductPalletItems" ToRole="ProductPallets" />
-          <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_ProductPalletItems_1CCharacteristics" FromRole="ProductPalletItems" ToRole="C1CCharacteristics" />
+          <NavigationProperty Name="ProductPallets" Relationship="GammaNewModel.FK_ProductItems_ProductPallets" FromRole="ProductItems" ToRole="ProductPallets" />
+          <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="ProductItems" ToRole="C1CCharacteristics" />
         </EntityType>
         <EntityType Name="ProductPallets">
           <Key>
             <PropertyRef Name="ProductID" />
           </Key>
           <Property Name="ProductID" Type="Guid" Nullable="false" />
-          <NavigationProperty Name="ProductPalletItems" Relationship="GammaNewModel.FK_ProductPalletItems_ProductPallets" FromRole="ProductPallets" ToRole="ProductPalletItems" />
+          <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_ProductPallets" FromRole="ProductPallets" ToRole="ProductItems" />
           <NavigationProperty Name="Products" Relationship="GammaNewModel.FK_ProductPallets_Products1" FromRole="ProductPallets" ToRole="Products" />
           <Property Name="IndexNumber" Type="Int32" />
         </EntityType>
@@ -988,14 +988,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProductPalletItems_ProductPallets">
+        <Association Name="FK_ProductItems_ProductPallets">
           <End Type="GammaNewModel.ProductPallets" Role="ProductPallets" Multiplicity="1" />
-          <End Type="GammaNewModel.ProductPalletItems" Role="ProductPalletItems" Multiplicity="*" />
+          <End Type="GammaNewModel.ProductItems" Role="ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="ProductPallets">
               <PropertyRef Name="ProductID" />
             </Principal>
-            <Dependent Role="ProductPalletItems">
+            <Dependent Role="ProductItems">
               <PropertyRef Name="ProductID" />
             </Dependent>
           </ReferentialConstraint>
@@ -1123,7 +1123,7 @@
           <NavigationProperty Name="C1CMeasureUnits" Relationship="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits" FromRole="C1CCharacteristics" ToRole="C1CMeasureUnits" />
           <NavigationProperty Name="C1CMeasureUnitsPallet" Relationship="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits1" FromRole="C1CCharacteristics" ToRole="C1CMeasureUnits" />
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTasks_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductionTasks" />
-          <NavigationProperty Name="ProductPalletItems" Relationship="GammaNewModel.FK_ProductPalletItems_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductPalletItems" />
+          <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductItems" />
         </EntityType>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Type="GammaNewModel.C1CMeasureUnits" Role="C1CMeasureUnits" Multiplicity="0..1" />
@@ -1161,14 +1161,14 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProductPalletItems_1CCharacteristics">
+        <Association Name="FK_ProductItems_1CCharacteristics">
           <End Type="GammaNewModel.C1CCharacteristics" Role="C1CCharacteristics" Multiplicity="1" />
-          <End Type="GammaNewModel.ProductPalletItems" Role="ProductPalletItems" Multiplicity="*" />
+          <End Type="GammaNewModel.ProductItems" Role="ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="C1CCharacteristics">
               <PropertyRef Name="C1CCharacteristicID" />
             </Principal>
-            <Dependent Role="ProductPalletItems">
+            <Dependent Role="ProductItems">
               <PropertyRef Name="C1CCharacteristicID" />
             </Dependent>
           </ReferentialConstraint>
@@ -1449,14 +1449,14 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="ProductPalletItems">
-            <EntityTypeMapping TypeName="GammaNewModel.ProductPalletItems">
-              <MappingFragment StoreEntitySet="ProductPalletItems">
+          <EntitySetMapping Name="ProductItems">
+            <EntityTypeMapping TypeName="GammaNewModel.ProductItems">
+              <MappingFragment StoreEntitySet="ProductItems">
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="C1CCharacteristicID" ColumnName="1CCharacteristicID" />
                 <ScalarProperty Name="C1CNomenclatureID" ColumnName="1CNomenclatureID" />
                 <ScalarProperty Name="ProductID" ColumnName="ProductID" />
-                <ScalarProperty Name="ProductPalletItemID" ColumnName="ProductPalletItemID" />
+                <ScalarProperty Name="ProductItemID" ColumnName="ProductItemID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
