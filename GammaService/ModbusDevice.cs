@@ -22,7 +22,7 @@ namespace GammaService
             MainTimer = new Timer(ReadCoil, null, 0, timerTickTime);
         }
 
-        private string IpAddress { get; set; }
+        public string IpAddress { get; set; }
         private DeviceType DeviceType { get; set; }
 
         public bool IsConnected { get; private set; }
@@ -42,6 +42,11 @@ namespace GammaService
         private Timer MainTimer { get; }
         private Timer RestoreConnectTimer { get; set; }
 
+        /// <summary>
+        /// Количество итераций подряд при которых AdamModbus.Modbus().ReadCoilStatus возвращает false
+        /// </summary>
+        private int countReadCoilStatusFalse = 0;
+
         private void RestoreConnect(object obj)
         {
             if (!AdamModbus.Connected)
@@ -60,10 +65,24 @@ namespace GammaService
             }
         }
 
+        private bool IsPrintPortStatus { get; set; }
+
+        public void ChangePrintStatus()
+        {
+            IsPrintPortStatus = !IsPrintPortStatus;
+        }
+
+
         private void ReadCoil(object obj)
         {
-            if (!AdamModbus.Connected)
+            if (!AdamModbus.Connected || countReadCoilStatusFalse > 10)
             {
+                if (IsConnected && countReadCoilStatusFalse > 10)
+                {
+                    AdamModbus.Disconnect();
+                    Console.WriteLine(DateTime.Now + " :Принудительная переинициализация (завис) " + IpAddress);
+                }
+                countReadCoilStatusFalse = 0;
                 IsConnected = false;
                 if (RestoreConnectTimer != null) return;
                 Console.WriteLine(DateTime.Now + " :Пропала связь с " + PrinterName);
@@ -75,14 +94,22 @@ namespace GammaService
             bool[] bDiData, bDoData, bData;
             //            if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
             //                !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData)) return;
+            if (IsPrintPortStatus) Console.WriteLine(DateTime.Now + " :Опрос адама " + IpAddress + " Статус: " + AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData).ToString()+"/"+ AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData).ToString());
             if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
-            !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData)) return;
+            !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData))
+            {
+                countReadCoilStatusFalse++;
+                return;
+            }
+            countReadCoilStatusFalse = 0;
+            if (IsPrintPortStatus) Console.WriteLine(DateTime.Now + "                        :Опрос адама " + IpAddress + " после проверки статуса");
             iChTotal = m_iDiTotal + m_iDoTotal;
             bData = new bool[iChTotal];
             if (bDiData == null || bDoData == null) return;
             Array.Copy(bDiData, 0, bData, 0, m_iDiTotal);
             Array.Copy(bDoData, 0, bData, m_iDiTotal, m_iDoTotal);
             InStatus = bData[SignalChannelNumber-1];
+            if (IsPrintPortStatus) Console.WriteLine(DateTime.Now + " Состояние на входе: " + InStatus.ToString());
         }
 
         private void InitializeDevice(DeviceType deviceType, string ipAddress)

@@ -30,8 +30,8 @@ namespace GammaService
             myServiceHost = new ServiceHost(typeof(PrinterService));
             //myServiceHost.AddDefaultEndpoints();
             myServiceHost.Open();
-
-            Console.WriteLine("Press ESC to stop");
+            const string message = "Press ESC to stop; F5 to reinitialize device; F2 to print status device; F6 to print status input";
+            Console.WriteLine(message);
             ConsoleKey key;
             do
             {
@@ -47,7 +47,14 @@ namespace GammaService
                     case ConsoleKey.F2:
                         foreach (var device in modbuseDevices)
                         {
-                            Console.WriteLine(device.IsConnected + " " + (device.IsConnected ? "IsConnected" : "Disconnected"));
+                            Console.WriteLine("Printer: " + device.PrinterName + ", ADAM: " + device.IpAddress + ", " + (device.IsConnected ? "IsConnected" : "Disconnected"));
+                            Console.WriteLine(message);
+                        }
+                        break;
+                    case ConsoleKey.F6:
+                        foreach (var device in modbuseDevices)
+                        {
+                            device.ChangePrintStatus();
                         }
                         break;
                 }
