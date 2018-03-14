@@ -12,19 +12,24 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class ProductPallets
+    public partial class PlaceRemotePrinters
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ProductPallets()
+        public PlaceRemotePrinters()
         {
-            this.ProductItems = new HashSet<ProductItems>();
+            this.PlaceRemotePrinterSettings = new HashSet<PlaceRemotePrinterSettings>();
         }
     
-        public System.Guid ProductID { get; set; }
-        public Nullable<int> IndexNumber { get; set; }
+        public int PlaceID { get; set; }
+        public int ModbusDeviceID { get; set; }
+        public int RemotePrinterID { get; set; }
+        public int PlaceRemotePrinterID { get; set; }
+        public Nullable<bool> IsEnabled { get; set; }
     
+        public virtual ModbusDevices ModbusDevices { get; set; }
+        public virtual Places Places { get; set; }
+        public virtual RemotePrinters RemotePrinters { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProductItems> ProductItems { get; set; }
-        public virtual Products Products { get; set; }
+        public virtual ICollection<PlaceRemotePrinterSettings> PlaceRemotePrinterSettings { get; set; }
     }
 }

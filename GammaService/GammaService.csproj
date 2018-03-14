@@ -52,9 +52,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\dlls\FastReport.dll</HintPath>
     </Reference>
+    <Reference Include="Ghostscript.NET">
+      <HintPath>..\..\..\CProjectsEducation\Ghostscript.NET.v.1.2.1.binaries\Ghostscript.NET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
@@ -77,7 +81,10 @@
     </Compile>
     <Compile Include="Common\DeviceType.cs" />
     <Compile Include="Common\DocType.cs" />
+    <Compile Include="Common\PdfPrint.cs" />
+    <Compile Include="Common\PrintImage.cs" />
     <Compile Include="Common\ProductKind.cs" />
+    <Compile Include="Common\RawPrintHelper.cs" />
     <Compile Include="Common\ReportManager.cs" />
     <Compile Include="Common\SQLGuidUtil.cs" />
     <Compile Include="CurrentPlaceUsers.cs">
@@ -121,14 +128,23 @@
       <DependentUpon>GammaService.cs</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IPrinterService.cs" />
+    <Compile Include="LocalSettings.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="ModbusDevice.cs" />
     <Compile Include="ModbusDevices.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="PlaceRemotePrintingSettings.cs">
+    <Compile Include="PlaceRemotePrinters.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PlaceRemotePrinterSettings.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Places.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductionTaskConverting.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="ProductionTasks.cs">
@@ -145,6 +161,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemotePrinterLabels.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="RemotePrinters.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>

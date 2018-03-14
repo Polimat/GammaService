@@ -112,6 +112,16 @@
           <Property Name="Quantity" Type="decimal" Precision="15" Scale="5" />
           <Property Name="CompleteWithdrawal" Type="bit" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="LocalSettings">
+          <Key>
+            <PropertyRef Name="BranchID" />
+          </Key>
+          <Property Name="BranchID" Type="int" Nullable="false" />
+          <Property Name="GammaServiceAddress" Type="varchar" MaxLength="250" />
+          <Property Name="LabelPath" Type="varchar" MaxLength="500" />
+        </EntityType>
         <EntityType Name="ModbusDevices">
           <Key>
             <PropertyRef Name="ModbusDeviceID" />
@@ -122,22 +132,31 @@
           <Property Name="Name" Type="varchar" MaxLength="500" />
           <Property Name="TimerTick" Type="int" Nullable="false" />
         </EntityType>
-        <EntityType Name="PlaceRemotePrintingSettings">
+        <EntityType Name="PlaceRemotePrinters">
           <Key>
-            <PropertyRef Name="PlaceID" />
+            <PropertyRef Name="PlaceRemotePrinterID" />
           </Key>
           <Property Name="PlaceID" Type="int" Nullable="false" />
           <Property Name="ModbusDeviceID" Type="int" Nullable="false" />
           <Property Name="RemotePrinterID" Type="int" Nullable="false" />
-          <Property Name="SignalChannelNumber" Type="int" Nullable="false" />
-          <Property Name="ConfirmChannelNumber" Type="int" />
+          <Property Name="PlaceRemotePrinterID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IsEnabled" Type="bit" />
+        </EntityType>
+        <EntityType Name="PlaceRemotePrinterSettings">
+          <Key>
+            <PropertyRef Name="PlaceRemotePrinterID" />
+            <PropertyRef Name="SettingName" />
+          </Key>
+          <Property Name="PlaceRemotePrinterID" Type="int" Nullable="false" />
+          <Property Name="SettingName" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="SettingValue" Type="varchar" MaxLength="100" Nullable="false" />
         </EntityType>
         <EntityType Name="Places">
           <Key>
             <PropertyRef Name="PlaceID" />
           </Key>
           <Property Name="PlaceID" Type="int" Nullable="false" />
-          <Property Name="PlaceGuid" Type="uniqueidentifier" />
+          <Property Name="PlaceGuid" Type="uniqueidentifier" Nullable="false" />
           <Property Name="BranchID" Type="int" Nullable="false" />
           <Property Name="BranchUnitID" Type="int" />
           <Property Name="Name" Type="varchar" MaxLength="64" />
@@ -153,6 +172,17 @@
           <Property Name="IsRemotePrinting" Type="bit" />
           <Property Name="UseApplicator" Type="bit" />
           <Property Name="ApplicatorLabelPath" Type="nvarchar" MaxLength="500" />
+          <Property Name="IsRobot" Type="bit" />
+        </EntityType>
+        <EntityType Name="ProductionTaskConverting">
+          <Key>
+            <PropertyRef Name="ProductionTaskID" />
+          </Key>
+          <Property Name="ProductionTaskID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="RobotProductNumber" Type="int" />
+          <Property Name="RobotProductDescription" Type="varchar" MaxLength="500" />
+          <Property Name="GroupPackLabelPNG" Type="varbinary(max)" />
+          <Property Name="GroupPackLabelMD5" Type="varchar" MaxLength="32" />
         </EntityType>
         <EntityType Name="ProductionTasks">
           <Key>
@@ -194,6 +224,13 @@
           <Property Name="ProductKindID" Type="tinyint" Nullable="false" />
           <Property Name="StateID" Type="tinyint" />
         </EntityType>
+        <EntityType Name="RemotePrinterLabels">
+          <Key>
+            <PropertyRef Name="RemotePrinterLabelID" />
+          </Key>
+          <Property Name="RemotePrinterLabelID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LabelName" Type="varchar" MaxLength="500" Nullable="false" />
+        </EntityType>
         <EntityType Name="RemotePrinters">
           <Key>
             <PropertyRef Name="RemotePrinterID" />
@@ -201,6 +238,9 @@
           <Property Name="RemotePrinterID" Type="int" Nullable="false" />
           <Property Name="PrinterName" Type="varchar" MaxLength="500" Nullable="false" />
           <Property Name="Alias" Type="varchar" MaxLength="500" />
+          <Property Name="RemotePrinterLabelID" Type="int" Nullable="false" />
+          <Property Name="IpAdress" Type="varchar" MaxLength="15" />
+          <Property Name="Port" Type="int" />
         </EntityType>
         <EntityType Name="Reports">
           <Key>
@@ -419,39 +459,79 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_PlaceRemotePrintingSettings_ModbusDevices">
+        <Association Name="FK_DocWithdrawalProducts_Products">
+          <End Role="Products" Type="Self.Products" Multiplicity="1" />
+          <End Role="DocWithdrawalProducts" Type="Self.DocWithdrawalProducts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Products">
+              <PropertyRef Name="ProductID" />
+            </Principal>
+            <Dependent Role="DocWithdrawalProducts">
+              <PropertyRef Name="ProductID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaceRemotePrinters_ModbusDevices">
           <End Role="ModbusDevices" Type="Self.ModbusDevices" Multiplicity="1" />
-          <End Role="PlaceRemotePrintingSettings" Type="Self.PlaceRemotePrintingSettings" Multiplicity="*" />
+          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="ModbusDevices">
               <PropertyRef Name="ModbusDeviceID" />
             </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
+            <Dependent Role="PlaceRemotePrinters">
               <PropertyRef Name="ModbusDeviceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_PlaceRemotePrintingSettings_Places">
+        <Association Name="FK_PlaceRemotePrinters_Places">
           <End Role="Places" Type="Self.Places" Multiplicity="1" />
-          <End Role="PlaceRemotePrintingSettings" Type="Self.PlaceRemotePrintingSettings" Multiplicity="0..1" />
+          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Places">
               <PropertyRef Name="PlaceID" />
             </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
+            <Dependent Role="PlaceRemotePrinters">
               <PropertyRef Name="PlaceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_PlaceRemotePrintingSettings_RemotePrinters">
+        <Association Name="FK_PlaceRemotePrinters_RemotePrinters">
           <End Role="RemotePrinters" Type="Self.RemotePrinters" Multiplicity="1" />
-          <End Role="PlaceRemotePrintingSettings" Type="Self.PlaceRemotePrintingSettings" Multiplicity="*" />
+          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="RemotePrinters">
               <PropertyRef Name="RemotePrinterID" />
             </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
+            <Dependent Role="PlaceRemotePrinters">
               <PropertyRef Name="RemotePrinterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
+          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="PlaceRemotePrinterSettings" Type="Self.PlaceRemotePrinterSettings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlaceRemotePrinters">
+              <PropertyRef Name="PlaceRemotePrinterID" />
+            </Principal>
+            <Dependent Role="PlaceRemotePrinterSettings">
+              <PropertyRef Name="PlaceRemotePrinterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProductionTaskConverting_ProductionTasks">
+          <End Role="ProductionTasks" Type="Self.ProductionTasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ProductionTaskConverting" Type="Self.ProductionTaskConverting" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="ProductionTasks">
+              <PropertyRef Name="ProductionTaskID" />
+            </Principal>
+            <Dependent Role="ProductionTaskConverting">
+              <PropertyRef Name="ProductionTaskID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -491,11 +571,11 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ProductItems_ProductPallets">
-          <End Role="ProductPallets" Type="Self.ProductPallets" Multiplicity="1" />
+        <Association Name="FK_ProductItems_Products">
+          <End Role="Products" Type="Self.Products" Multiplicity="1" />
           <End Role="ProductItems" Type="Self.ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="ProductPallets">
+            <Principal Role="Products">
               <PropertyRef Name="ProductID" />
             </Principal>
             <Dependent Role="ProductItems">
@@ -542,15 +622,25 @@
           <EntitySet Name="DocWithdrawal" EntityType="Self.DocWithdrawal" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocWithdrawalProducts" EntityType="Self.DocWithdrawalProducts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ModbusDevices" EntityType="Self.ModbusDevices" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="PlaceRemotePrintingSettings" EntityType="Self.PlaceRemotePrintingSettings" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PlaceRemotePrinters" EntityType="Self.PlaceRemotePrinters" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PlaceRemotePrinterSettings" EntityType="Self.PlaceRemotePrinterSettings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Places" EntityType="Self.Places" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProductionTaskConverting" EntityType="Self.ProductionTaskConverting" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProductionTasks" EntityType="Self.ProductionTasks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProductItems" EntityType="Self.ProductItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProductPallets" EntityType="Self.ProductPallets" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RemotePrinterLabels" EntityType="Self.RemotePrinterLabels" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RemotePrinters" EntityType="Self.RemotePrinters" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Reports" EntityType="Self.Reports" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Templates" EntityType="Self.Templates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LocalSettings" EntityType="Self.LocalSettings" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [LocalSettings].[BranchID] AS [BranchID], 
+    [LocalSettings].[GammaServiceAddress] AS [GammaServiceAddress], 
+    [LocalSettings].[LabelPath] AS [LabelPath]
+    FROM [dbo].[LocalSettings] AS [LocalSettings]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_1CCharacteristics_1CMeasureUnits" Association="Self.FK_1CCharacteristics_1CMeasureUnits">
             <End Role="1CMeasureUnits" EntitySet="1CMeasureUnits" />
             <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
@@ -615,17 +705,29 @@
             <End Role="DocWithdrawal" EntitySet="DocWithdrawal" />
             <End Role="DocWithdrawalProducts" EntitySet="DocWithdrawalProducts" />
           </AssociationSet>
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_ModbusDevices" Association="Self.FK_PlaceRemotePrintingSettings_ModbusDevices">
+          <AssociationSet Name="FK_DocWithdrawalProducts_Products" Association="Self.FK_DocWithdrawalProducts_Products">
+            <End Role="Products" EntitySet="Products" />
+            <End Role="DocWithdrawalProducts" EntitySet="DocWithdrawalProducts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaceRemotePrinters_ModbusDevices" Association="Self.FK_PlaceRemotePrinters_ModbusDevices">
             <End Role="ModbusDevices" EntitySet="ModbusDevices" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
           </AssociationSet>
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_Places" Association="Self.FK_PlaceRemotePrintingSettings_Places">
+          <AssociationSet Name="FK_PlaceRemotePrinters_Places" Association="Self.FK_PlaceRemotePrinters_Places">
             <End Role="Places" EntitySet="Places" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
           </AssociationSet>
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_RemotePrinters" Association="Self.FK_PlaceRemotePrintingSettings_RemotePrinters">
+          <AssociationSet Name="FK_PlaceRemotePrinters_RemotePrinters" Association="Self.FK_PlaceRemotePrinters_RemotePrinters">
             <End Role="RemotePrinters" EntitySet="RemotePrinters" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" Association="Self.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+            <End Role="PlaceRemotePrinterSettings" EntitySet="PlaceRemotePrinterSettings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProductionTaskConverting_ProductionTasks" Association="Self.FK_ProductionTaskConverting_ProductionTasks">
+            <End Role="ProductionTasks" EntitySet="ProductionTasks" />
+            <End Role="ProductionTaskConverting" EntitySet="ProductionTaskConverting" />
           </AssociationSet>
           <AssociationSet Name="FK_ProductionTasks_1CCharacteristics" Association="Self.FK_ProductionTasks_1CCharacteristics">
             <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
@@ -639,8 +741,8 @@
             <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
             <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
-          <AssociationSet Name="FK_ProductItems_ProductPallets" Association="Self.FK_ProductItems_ProductPallets">
-            <End Role="ProductPallets" EntitySet="ProductPallets" />
+          <AssociationSet Name="FK_ProductItems_Products" Association="Self.FK_ProductItems_Products">
+            <End Role="Products" EntitySet="Products" />
             <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
           <AssociationSet Name="FK_ProductPallets_Products1" Association="Self.FK_ProductPallets_Products1">
@@ -782,7 +884,6 @@
             <End Role="C1CCharacteristics" EntitySet="C1CCharacteristics" />
             <End Role="ProductItems" EntitySet="ProductItems" />
           </AssociationSet>
-          <EntitySet Name="PlaceRemotePrintingSettings" EntityType="GammaNewModel.PlaceRemotePrintingSettings" />
           <EntitySet Name="Places" EntityType="GammaNewModel.Places" />
           <AssociationSet Name="FK_ActiveProductionTasks_Places" Association="GammaNewModel.FK_ActiveProductionTasks_Places">
             <End Role="Places" EntitySet="Places" />
@@ -804,22 +905,39 @@
             <End Role="Places" EntitySet="Places" />
             <End Role="DocWithdrawal" EntitySet="DocWithdrawal" />
           </AssociationSet>
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_ModbusDevices" Association="GammaNewModel.FK_PlaceRemotePrintingSettings_ModbusDevices">
-            <End Role="ModbusDevices" EntitySet="ModbusDevices" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_Places" Association="GammaNewModel.FK_PlaceRemotePrintingSettings_Places">
-            <End Role="Places" EntitySet="Places" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
-          </AssociationSet>
           <AssociationSet Name="FK_ProductionTasks_Places" Association="GammaNewModel.FK_ProductionTasks_Places">
             <End Role="Places" EntitySet="Places" />
             <End Role="ProductionTasks" EntitySet="ProductionTasks" />
           </AssociationSet>
           <EntitySet Name="RemotePrinters" EntityType="GammaNewModel.RemotePrinters" />
-          <AssociationSet Name="FK_PlaceRemotePrintingSettings_RemotePrinters" Association="GammaNewModel.FK_PlaceRemotePrintingSettings_RemotePrinters">
+          <EntitySet Name="PlaceRemotePrinters" EntityType="GammaNewModel.PlaceRemotePrinters" />
+          <EntitySet Name="PlaceRemotePrinterSettings" EntityType="GammaNewModel.PlaceRemotePrinterSettings" />
+          <AssociationSet Name="FK_PlaceRemotePrinters_ModbusDevices" Association="GammaNewModel.FK_PlaceRemotePrinters_ModbusDevices">
+            <End Role="ModbusDevices" EntitySet="ModbusDevices" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaceRemotePrinters_Places" Association="GammaNewModel.FK_PlaceRemotePrinters_Places">
+            <End Role="Places" EntitySet="Places" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaceRemotePrinters_RemotePrinters" Association="GammaNewModel.FK_PlaceRemotePrinters_RemotePrinters">
             <End Role="RemotePrinters" EntitySet="RemotePrinters" />
-            <End Role="PlaceRemotePrintingSettings" EntitySet="PlaceRemotePrintingSettings" />
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" Association="GammaNewModel.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
+            <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
+            <End Role="PlaceRemotePrinterSettings" EntitySet="PlaceRemotePrinterSettings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ProductItems_Products" Association="GammaNewModel.FK_ProductItems_Products">
+            <End Role="Products" EntitySet="Products" />
+            <End Role="ProductItems" EntitySet="ProductItems" />
+          </AssociationSet>
+          <EntitySet Name="RemotePrinterLabels" EntityType="GammaNewModel.RemotePrinterLabels" />
+          <EntitySet Name="LocalSettings" EntityType="GammaNewModel.LocalSettings" />
+          <EntitySet Name="ProductionTaskConverting" EntityType="GammaNewModel.ProductionTaskConverting" />
+          <AssociationSet Name="FK_ProductionTaskConverting_ProductionTasks" Association="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks">
+            <End Role="ProductionTasks" EntitySet="ProductionTasks" />
+            <End Role="ProductionTaskConverting" EntitySet="ProductionTaskConverting" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="ModbusDevices">
@@ -831,7 +949,7 @@
           <Property Name="IPAddress" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Name" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="TimerTick" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="PlaceRemotePrintingSettings" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_ModbusDevices" FromRole="ModbusDevices" ToRole="PlaceRemotePrintingSettings" />
+          <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_ModbusDevices" FromRole="ModbusDevices" ToRole="PlaceRemotePrinters" />
         </EntityType>
         <EntityType Name="CurrentPlaceUsers">
           <Key>
@@ -928,6 +1046,7 @@
           <Property Name="Quantity" Type="Int32" />
           <NavigationProperty Name="ProductPallets" Relationship="GammaNewModel.FK_ProductItems_ProductPallets" FromRole="ProductItems" ToRole="ProductPallets" />
           <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="ProductItems" ToRole="C1CCharacteristics" />
+          <NavigationProperty Name="Products" Relationship="GammaNewModel.FK_ProductItems_Products" FromRole="ProductItems" ToRole="Products" />
         </EntityType>
         <EntityType Name="ProductPallets">
           <Key>
@@ -1016,6 +1135,7 @@
           <NavigationProperty Name="DocProductionProducts" Relationship="GammaNewModel.FK_DocProductionProducts_Products" FromRole="Products" ToRole="DocProductionProducts" />
           <NavigationProperty Name="DocWithdrawalProducts" Relationship="GammaNewModel.FK_DocWithdrawalProducts_Products" FromRole="Products" ToRole="DocWithdrawalProducts" />
           <NavigationProperty Name="ProductPallets" Relationship="GammaNewModel.FK_ProductPallets_Products1" FromRole="Products" ToRole="ProductPallets" />
+          <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_Products" FromRole="Products" ToRole="ProductItems" />
         </EntityType>
         <Association Name="FK_DocProductionProducts_Products">
           <End Type="GammaNewModel.Products" Role="Products" Multiplicity="1" />
@@ -1069,6 +1189,7 @@
           <NavigationProperty Name="DocProduction" Relationship="GammaNewModel.FK_DocProduction_ProductionTasks" FromRole="ProductionTasks" ToRole="DocProduction" />
           <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_ProductionTasks_1CCharacteristics" FromRole="ProductionTasks" ToRole="C1CCharacteristics" />
           <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_ProductionTasks_Places" FromRole="ProductionTasks" ToRole="Places" />
+          <NavigationProperty Name="ProductionTaskConverting" Relationship="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks" FromRole="ProductionTasks" ToRole="ProductionTaskConverting" />
         </EntityType>
         <Association Name="FK_ActiveProductionTasks_ProductionTasks">
           <End Type="GammaNewModel.ProductionTasks" Role="ProductionTasks" Multiplicity="0..1" />
@@ -1173,25 +1294,12 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="PlaceRemotePrintingSettings">
-          <Key>
-            <PropertyRef Name="PlaceID" />
-          </Key>
-          <Property Name="PlaceID" Type="Int32" Nullable="false" />
-          <Property Name="ModbusDeviceID" Type="Int32" Nullable="false" />
-          <Property Name="RemotePrinterID" Type="Int32" Nullable="false" />
-          <Property Name="SignalChannelNumber" Type="Int32" Nullable="false" />
-          <Property Name="ConfirmChannelNumber" Type="Int32" />
-          <NavigationProperty Name="ModbusDevices" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_ModbusDevices" FromRole="PlaceRemotePrintingSettings" ToRole="ModbusDevices" />
-          <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_Places" FromRole="PlaceRemotePrintingSettings" ToRole="Places" />
-          <NavigationProperty Name="RemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_RemotePrinters" FromRole="PlaceRemotePrintingSettings" ToRole="RemotePrinters" />
-        </EntityType>
         <EntityType Name="Places">
           <Key>
             <PropertyRef Name="PlaceID" />
           </Key>
           <Property Name="PlaceID" Type="Int32" Nullable="false" />
-          <Property Name="PlaceGuid" Type="Guid" />
+          <Property Name="PlaceGuid" Type="Guid" Nullable="false" />
           <Property Name="BranchID" Type="Int32" Nullable="false" />
           <Property Name="BranchUnitID" Type="Int32" />
           <Property Name="Name" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
@@ -1212,8 +1320,9 @@
           <NavigationProperty Name="DocProduction" Relationship="GammaNewModel.FK_DocProduction_Places" FromRole="Places" ToRole="DocProduction" />
           <NavigationProperty Name="Docs" Relationship="GammaNewModel.FK_Docs_Places" FromRole="Places" ToRole="Docs" />
           <NavigationProperty Name="DocWithdrawal" Relationship="GammaNewModel.FK_DocWithdrawal_Places" FromRole="Places" ToRole="DocWithdrawal" />
-          <NavigationProperty Name="PlaceRemotePrintingSettings" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_Places" FromRole="Places" ToRole="PlaceRemotePrintingSettings" />
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTasks_Places" FromRole="Places" ToRole="ProductionTasks" />
+          <Property Name="IsRobot" Type="Boolean" />
+          <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_Places" FromRole="Places" ToRole="PlaceRemotePrinters" />
         </EntityType>
         <Association Name="FK_ActiveProductionTasks_Places">
           <End Type="GammaNewModel.Places" Role="Places" Multiplicity="1" />
@@ -1275,30 +1384,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_PlaceRemotePrintingSettings_ModbusDevices">
-          <End Type="GammaNewModel.ModbusDevices" Role="ModbusDevices" Multiplicity="1" />
-          <End Type="GammaNewModel.PlaceRemotePrintingSettings" Role="PlaceRemotePrintingSettings" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ModbusDevices">
-              <PropertyRef Name="ModbusDeviceID" />
-            </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
-              <PropertyRef Name="ModbusDeviceID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PlaceRemotePrintingSettings_Places">
-          <End Type="GammaNewModel.Places" Role="Places" Multiplicity="1" />
-          <End Type="GammaNewModel.PlaceRemotePrintingSettings" Role="PlaceRemotePrintingSettings" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="Places">
-              <PropertyRef Name="PlaceID" />
-            </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
-              <PropertyRef Name="PlaceID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_ProductionTasks_Places">
           <End Type="GammaNewModel.Places" Role="Places" Multiplicity="0..1" />
           <End Type="GammaNewModel.ProductionTasks" Role="ProductionTasks" Multiplicity="*" />
@@ -1318,17 +1403,132 @@
           <Property Name="RemotePrinterID" Type="Int32" Nullable="false" />
           <Property Name="PrinterName" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="Alias" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="PlaceRemotePrintingSettings" Relationship="GammaNewModel.FK_PlaceRemotePrintingSettings_RemotePrinters" FromRole="RemotePrinters" ToRole="PlaceRemotePrintingSettings" />
+          <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_RemotePrinters" FromRole="RemotePrinters" ToRole="PlaceRemotePrinters" />
+          <Property Name="RemotePrinterLabelID" Type="Int32" Nullable="false" />
+          <Property Name="IpAdress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Port" Type="Int32" />
         </EntityType>
-        <Association Name="FK_PlaceRemotePrintingSettings_RemotePrinters">
+        <EntityType Name="PlaceRemotePrinters">
+          <Key>
+            <PropertyRef Name="PlaceRemotePrinterID" />
+          </Key>
+          <Property Name="PlaceID" Type="Int32" Nullable="false" />
+          <Property Name="ModbusDeviceID" Type="Int32" Nullable="false" />
+          <Property Name="RemotePrinterID" Type="Int32" Nullable="false" />
+          <Property Name="PlaceRemotePrinterID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="ModbusDevices" Relationship="GammaNewModel.FK_PlaceRemotePrinters_ModbusDevices" FromRole="PlaceRemotePrinters" ToRole="ModbusDevices" />
+          <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_PlaceRemotePrinters_Places" FromRole="PlaceRemotePrinters" ToRole="Places" />
+          <NavigationProperty Name="RemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_RemotePrinters" FromRole="PlaceRemotePrinters" ToRole="RemotePrinters" />
+          <NavigationProperty Name="PlaceRemotePrinterSettings" Relationship="GammaNewModel.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" FromRole="PlaceRemotePrinters" ToRole="PlaceRemotePrinterSettings" />
+          <Property Name="IsEnabled" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="PlaceRemotePrinterSettings">
+          <Key>
+            <PropertyRef Name="PlaceRemotePrinterID" />
+            <PropertyRef Name="SettingName" />
+          </Key>
+          <Property Name="PlaceRemotePrinterID" Type="Int32" Nullable="false" />
+          <Property Name="SettingName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SettingValue" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" FromRole="PlaceRemotePrinterSettings" ToRole="PlaceRemotePrinters" />
+        </EntityType>
+        <Association Name="FK_PlaceRemotePrinters_ModbusDevices">
+          <End Type="GammaNewModel.ModbusDevices" Role="ModbusDevices" Multiplicity="1" />
+          <End Type="GammaNewModel.PlaceRemotePrinters" Role="PlaceRemotePrinters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ModbusDevices">
+              <PropertyRef Name="ModbusDeviceID" />
+            </Principal>
+            <Dependent Role="PlaceRemotePrinters">
+              <PropertyRef Name="ModbusDeviceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaceRemotePrinters_Places">
+          <End Type="GammaNewModel.Places" Role="Places" Multiplicity="1" />
+          <End Type="GammaNewModel.PlaceRemotePrinters" Role="PlaceRemotePrinters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Places">
+              <PropertyRef Name="PlaceID" />
+            </Principal>
+            <Dependent Role="PlaceRemotePrinters">
+              <PropertyRef Name="PlaceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaceRemotePrinters_RemotePrinters">
           <End Type="GammaNewModel.RemotePrinters" Role="RemotePrinters" Multiplicity="1" />
-          <End Type="GammaNewModel.PlaceRemotePrintingSettings" Role="PlaceRemotePrintingSettings" Multiplicity="*" />
+          <End Type="GammaNewModel.PlaceRemotePrinters" Role="PlaceRemotePrinters" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="RemotePrinters">
               <PropertyRef Name="RemotePrinterID" />
             </Principal>
-            <Dependent Role="PlaceRemotePrintingSettings">
+            <Dependent Role="PlaceRemotePrinters">
               <PropertyRef Name="RemotePrinterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
+          <End Type="GammaNewModel.PlaceRemotePrinters" Role="PlaceRemotePrinters" Multiplicity="1" />
+          <End Type="GammaNewModel.PlaceRemotePrinterSettings" Role="PlaceRemotePrinterSettings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PlaceRemotePrinters">
+              <PropertyRef Name="PlaceRemotePrinterID" />
+            </Principal>
+            <Dependent Role="PlaceRemotePrinterSettings">
+              <PropertyRef Name="PlaceRemotePrinterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ProductItems_Products">
+          <End Type="GammaNewModel.Products" Role="Products" Multiplicity="1" />
+          <End Type="GammaNewModel.ProductItems" Role="ProductItems" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Products">
+              <PropertyRef Name="ProductID" />
+            </Principal>
+            <Dependent Role="ProductItems">
+              <PropertyRef Name="ProductID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RemotePrinterLabels">
+          <Key>
+            <PropertyRef Name="RemotePrinterLabelID" />
+          </Key>
+          <Property Name="RemotePrinterLabelID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LabelName" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="LocalSettings">
+          <Key>
+            <PropertyRef Name="BranchID" />
+          </Key>
+          <Property Name="BranchID" Type="Int32" Nullable="false" />
+          <Property Name="GammaServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LabelPath" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="ProductionTaskConverting">
+          <Key>
+            <PropertyRef Name="ProductionTaskID" />
+          </Key>
+          <Property Name="ProductionTaskID" Type="Guid" Nullable="false" />
+          <Property Name="RobotProductNumber" Type="Int32" />
+          <Property Name="RobotProductDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="GroupPackLabelPNG" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="GroupPackLabelMD5" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks" FromRole="ProductionTaskConverting" ToRole="ProductionTasks" />
+        </EntityType>
+        <Association Name="FK_ProductionTaskConverting_ProductionTasks">
+          <End Type="GammaNewModel.ProductionTasks" Role="ProductionTasks" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="GammaNewModel.ProductionTaskConverting" Role="ProductionTaskConverting" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="ProductionTasks">
+              <PropertyRef Name="ProductionTaskID" />
+            </Principal>
+            <Dependent Role="ProductionTaskConverting">
+              <PropertyRef Name="ProductionTaskID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1529,20 +1729,10 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PlaceRemotePrintingSettings">
-            <EntityTypeMapping TypeName="GammaNewModel.PlaceRemotePrintingSettings">
-              <MappingFragment StoreEntitySet="PlaceRemotePrintingSettings">
-                <ScalarProperty Name="ConfirmChannelNumber" ColumnName="ConfirmChannelNumber" />
-                <ScalarProperty Name="SignalChannelNumber" ColumnName="SignalChannelNumber" />
-                <ScalarProperty Name="RemotePrinterID" ColumnName="RemotePrinterID" />
-                <ScalarProperty Name="ModbusDeviceID" ColumnName="ModbusDeviceID" />
-                <ScalarProperty Name="PlaceID" ColumnName="PlaceID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Places">
             <EntityTypeMapping TypeName="GammaNewModel.Places">
               <MappingFragment StoreEntitySet="Places">
+                <ScalarProperty Name="IsRobot" ColumnName="IsRobot" />
                 <ScalarProperty Name="ApplicatorLabelPath" ColumnName="ApplicatorLabelPath" />
                 <ScalarProperty Name="UseApplicator" ColumnName="UseApplicator" />
                 <ScalarProperty Name="IsRemotePrinting" ColumnName="IsRemotePrinting" />
@@ -1566,9 +1756,60 @@
           <EntitySetMapping Name="RemotePrinters">
             <EntityTypeMapping TypeName="GammaNewModel.RemotePrinters">
               <MappingFragment StoreEntitySet="RemotePrinters">
+                <ScalarProperty Name="Port" ColumnName="Port" />
+                <ScalarProperty Name="IpAdress" ColumnName="IpAdress" />
+                <ScalarProperty Name="RemotePrinterLabelID" ColumnName="RemotePrinterLabelID" />
                 <ScalarProperty Name="Alias" ColumnName="Alias" />
                 <ScalarProperty Name="PrinterName" ColumnName="PrinterName" />
                 <ScalarProperty Name="RemotePrinterID" ColumnName="RemotePrinterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PlaceRemotePrinters">
+            <EntityTypeMapping TypeName="GammaNewModel.PlaceRemotePrinters">
+              <MappingFragment StoreEntitySet="PlaceRemotePrinters">
+                <ScalarProperty Name="IsEnabled" ColumnName="IsEnabled" />
+                <ScalarProperty Name="PlaceRemotePrinterID" ColumnName="PlaceRemotePrinterID" />
+                <ScalarProperty Name="RemotePrinterID" ColumnName="RemotePrinterID" />
+                <ScalarProperty Name="ModbusDeviceID" ColumnName="ModbusDeviceID" />
+                <ScalarProperty Name="PlaceID" ColumnName="PlaceID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PlaceRemotePrinterSettings">
+            <EntityTypeMapping TypeName="GammaNewModel.PlaceRemotePrinterSettings">
+              <MappingFragment StoreEntitySet="PlaceRemotePrinterSettings">
+                <ScalarProperty Name="SettingValue" ColumnName="SettingValue" />
+                <ScalarProperty Name="SettingName" ColumnName="SettingName" />
+                <ScalarProperty Name="PlaceRemotePrinterID" ColumnName="PlaceRemotePrinterID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RemotePrinterLabels">
+            <EntityTypeMapping TypeName="GammaNewModel.RemotePrinterLabels">
+              <MappingFragment StoreEntitySet="RemotePrinterLabels">
+                <ScalarProperty Name="LabelName" ColumnName="LabelName" />
+                <ScalarProperty Name="RemotePrinterLabelID" ColumnName="RemotePrinterLabelID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LocalSettings">
+            <EntityTypeMapping TypeName="GammaNewModel.LocalSettings">
+              <MappingFragment StoreEntitySet="LocalSettings">
+                <ScalarProperty Name="LabelPath" ColumnName="LabelPath" />
+                <ScalarProperty Name="GammaServiceAddress" ColumnName="GammaServiceAddress" />
+                <ScalarProperty Name="BranchID" ColumnName="BranchID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProductionTaskConverting">
+            <EntityTypeMapping TypeName="GammaNewModel.ProductionTaskConverting">
+              <MappingFragment StoreEntitySet="ProductionTaskConverting">
+                <ScalarProperty Name="GroupPackLabelMD5" ColumnName="GroupPackLabelMD5" />
+                <ScalarProperty Name="GroupPackLabelPNG" ColumnName="GroupPackLabelPNG" />
+                <ScalarProperty Name="RobotProductDescription" ColumnName="RobotProductDescription" />
+                <ScalarProperty Name="RobotProductNumber" ColumnName="RobotProductNumber" />
+                <ScalarProperty Name="ProductionTaskID" ColumnName="ProductionTaskID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

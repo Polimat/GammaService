@@ -12,14 +12,14 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class Templates
+    public partial class ProductionTaskConverting
     {
-        public System.Guid TemplateID { get; set; }
-        public Nullable<System.Guid> ReportID { get; set; }
-        public string Name { get; set; }
-        public byte[] Template { get; set; }
-        public string Version { get; set; }
+        public System.Guid ProductionTaskID { get; set; }
+        public Nullable<int> RobotProductNumber { get; set; }
+        public string RobotProductDescription { get; set; }
+        public byte[] GroupPackLabelPNG { get; set; }
+        public string GroupPackLabelMD5 { get; set; }
     
-        public virtual Reports Reports { get; set; }
+        public virtual ProductionTasks ProductionTasks { get; set; }
     }
 }

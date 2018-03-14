@@ -12,14 +12,10 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class Templates
+    public partial class LocalSettings
     {
-        public System.Guid TemplateID { get; set; }
-        public Nullable<System.Guid> ReportID { get; set; }
-        public string Name { get; set; }
-        public byte[] Template { get; set; }
-        public string Version { get; set; }
-    
-        public virtual Reports Reports { get; set; }
+        public int BranchID { get; set; }
+        public string GammaServiceAddress { get; set; }
+        public string LabelPath { get; set; }
     }
 }

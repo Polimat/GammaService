@@ -10,6 +10,21 @@ namespace GammaService.Interfaces
         bool PrintPallet(Guid productId);
 
 		[OperationContract]
-	    bool ActivateProductionTask(Guid productionTaskId);
+	    bool? ActivateProductionTask(Guid productionTaskId, int placeId, int remotePrinterLabelId);
+
+        [OperationContract]
+        bool? ChangePrinterStatus(int placeId, int remotePrinterLabelId);
+
+        [OperationContract]
+        bool? GetPrinterStatus(int placeId, int remotePrinterLabelId);
+
+        [OperationContract]
+        bool PrintLabel(int placeId, int remotePrinterLabelId, Guid? productId);
+
+        [OperationContract]
+        bool? ChangePrintPortStatus(int placeId, int remotePrinterLabelId);
+
+        [OperationContract]
+        bool UpdateGroupPackageLabelInProductionTask(Guid productionTaskId);
     }
 }
