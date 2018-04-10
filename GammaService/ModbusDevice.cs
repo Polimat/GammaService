@@ -34,6 +34,14 @@ namespace GammaService
                 SignalChannelNumber = 1;
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Внимание!!!! Параметр SignalChannelNumber не указан! (установлен по умолчанию в 1)");
             }
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("ErrorChannelNumber", out value);
+            if (value != null)
+                ErrorChannelNumber = Convert.ToInt32(value);
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("ResetErrorChannelNumber", out value);
+            if (value != null)
+                ResetErrorChannelNumber = Convert.ToInt32(value);
             InitializeDevice(deviceType, ipAddress);
             //PackageLabelPath = LoadPackageLabelPath(PlaceId, RemotePrinterLabelId);
             LoadPackageLabelPNG(PlaceId, RemotePrinterLabelId);
@@ -88,6 +96,11 @@ namespace GammaService
             get { return _isEnabledService; }
             set
             {
+                if (value && !_isEnabledService)
+                {
+                    SendCommandZPL("~JA");
+                    LoadPackageLabelPNG(PlaceId, RemotePrinterLabelId);
+                }
                 _isEnabledService = value;
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Сервис " + (_isEnabledService ? "активирован" : " остановлен"));
             }
@@ -97,9 +110,21 @@ namespace GammaService
 
         private int m_iDiTotal;
         private int m_iDoTotal;
-
+        /// <summary>
+        /// Номер входа с сигналом "печатай!"
+        /// </summary>
         private int SignalChannelNumber { get; set; }
-        private int? ConfirmChannelNumber { get; set; }
+        
+        /// <summary>
+        /// Номер выхода с сигналом "Ошибка"
+        /// </summary>
+        private int? ErrorChannelNumber { get; set; }
+
+        /// <summary>
+        /// Номер входа с сигналом "Сбросить ошибку"
+        /// </summary>
+        private int? ResetErrorChannelNumber { get; set; }
+
         Dictionary<string, string> PlaceRemotePrinterSettings { get; set; }
 
         private Timer MainTimer { get; }
@@ -219,7 +244,8 @@ namespace GammaService
         public void DestroyDevice()
         {
             //AdamModbus?.Disconnect();
-            AdamModbus.Disconnect();
+            if (IsConnected)
+                AdamModbus.Disconnect();
             if (RestoreConnectTimer != null)
             {
                 RestoreConnectTimer?.Dispose();
@@ -238,6 +264,52 @@ namespace GammaService
         public event Action<bool[]> OnDIDataReceived;
 
         #endregion
+
+        private bool _isErrorPrinting = false;
+
+        public bool IsErrorPrinting
+        {
+            get { return _isErrorPrinting; }
+            set
+            {
+                if (_isErrorPrinting == value) return;
+                _isErrorPrinting = value;
+                if (ErrorChannelNumber != null)
+                {
+                    try
+                    {
+                        var outSignals = new Dictionary<int, bool>
+                    {
+                        {
+                            (int) ErrorChannelNumber, _isErrorPrinting
+                        }
+                    };
+                        SendSignal(outSignals);
+                        if (IsPrintPortStatus) Console.WriteLine(DateTime.Now + " :" + PrinterName + " Выход " + ErrorChannelNumber + "; Сигнал " + _isErrorPrinting);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine(DateTime.Now + " :" + PrinterName + ":Ошибка! Не удалось отправить сигнал " + _isErrorPrinting + " на выход " + ErrorChannelNumber);
+                    }
+                }
+                //Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
+            }
+        }
+
+        private bool _inResetError = true;
+
+        public bool InResetError
+        {
+            get { return _inResetError; }
+            set
+            {
+                if (_inResetError == value) return;
+                _inResetError = value;
+                if (InResetError) return;
+                IsErrorPrinting = false;
+                //Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
+            }
+        }
 
         private bool _inStatus = true;
 
@@ -291,7 +363,10 @@ namespace GammaService
             if (PackageLabelPath != null)
                 PrintLabel(PackageLabelPath);
             else
+            {
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати групповой этикетки произошла ошибка (путь до этикетки не указан)");
+                IsErrorPrinting = true;
+            }
         }
 
         private void PrintLabelId2()
@@ -382,6 +457,24 @@ namespace GammaService
             return true;
         }
 
+        public void SendCommandZPL(string s)
+        {
+            //isPrinting = true;
+            if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, s))
+            {
+                Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При отправке команды " + s + " произошла ошибка");
+                IsErrorPrinting = true;
+                //isPrinting = false;
+                return;
+            }
+            else
+            {
+                Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Отправка команды " + s + " произведена успешно");
+                IsErrorPrinting = false;
+                //isPrinting = false;
+            }
+        }
+
         public void PrintLabelZPL()
         {
             //isPrinting = true;
@@ -389,12 +482,14 @@ namespace GammaService
             if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, printImage))
             {
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                IsErrorPrinting = false;
                 //isPrinting = false;
             }
             /*
@@ -426,12 +521,14 @@ namespace GammaService
             if (pdfPath.Substring(pdfPath.Length - 3, 3).ToUpper() == "PDF" ? !PdfPrint.PrintPdfDocument(pdfPath, PrinterName) : !PrintImage.SendImageToPrinter(pdfPath, PrinterName))
             {
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
                 Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                IsErrorPrinting = false;
                 //isPrinting = false;
             }
         }
@@ -456,7 +553,7 @@ namespace GammaService
         
         public void OnModbusInputDataReceived(bool[] diData)
         {
-            if (diData == null || diData.Length < Math.Max(SignalChannelNumber, SignalChannelNumber))
+            if (diData == null || diData.Length < Math.Max(SignalChannelNumber, (ResetErrorChannelNumber == null) ? 0 : (int)ResetErrorChannelNumber))
             {
                 return;
             }
@@ -480,6 +577,26 @@ namespace GammaService
             //PrintInputState = !diData[inputPrint - 1];
             //ApplicatorReady = !diData[inputApplicatorReady - 1];
             InStatus = diData[SignalChannelNumber - 1];
+            if (ResetErrorChannelNumber != null)
+                InResetError = diData[(int)ResetErrorChannelNumber - 1];
+        }
+
+        public void SendSignal(Dictionary<int, bool> outData)
+        {
+            var iStart = 17 - m_iDiTotal;
+            foreach (var signal in outData)
+            {
+                AdamModbus.Modbus().ForceSingleCoil(iStart + signal.Key, signal.Value);
+                //Thread.Sleep(sendSignalPauseInMs);
+                //AdamModbus.Modbus().ForceSingleCoil(iStart + signal.Key, !signal.Value);
+            }
+        }
+
+        public void SendSignal(bool outData)
+        {
+            var iStart = 17 - m_iDiTotal;
+            if (ResetErrorChannelNumber != null)
+                AdamModbus.Modbus().ForceSingleCoil(iStart + (int)ResetErrorChannelNumber, outData);
         }
 
         public string LoadPackageLabelPath(int placeId, int remotePrinterLabelId)

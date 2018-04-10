@@ -34,7 +34,7 @@ namespace GammaService
             myServiceHost = new ServiceHost(typeof(PrinterService));
             //myServiceHost.AddDefaultEndpoints();
             myServiceHost.Open();
-            const string message = "Press ESC to stop; F4 to restart devices; F5 to reinitialize devices; F2 to print status device; F9 to print status input";
+            const string message = "Press ESC to stop; F5 to reinitialize devices; F2 to print status device; F9 to print status input";
             Console.WriteLine(message);
             ConsoleKey key;
             do
@@ -42,7 +42,7 @@ namespace GammaService
                 key = Console.ReadKey(true).Key;
                 switch (key)
                 {
-                    case ConsoleKey.F4:
+                    case ConsoleKey.F4://F4 to restart devices; not worked
                         InitializeDevices();
                         break;
                     case ConsoleKey.F5:

@@ -26,5 +26,8 @@ namespace GammaService.Interfaces
 
         [OperationContract]
         bool UpdateGroupPackageLabelInProductionTask(Guid productionTaskId);
+
+        [OperationContract]
+        Tuple<bool,string> UpdateGroupPackLabelInProductionTask(Guid productionTaskId);
     }
 }

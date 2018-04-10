@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace GammaService.Services
 {
-    public class PrinterService: IPrinterService
+    public class PrinterService : IPrinterService
     {
         public bool PrintPallet(Guid productId)
         {
@@ -22,13 +22,13 @@ namespace GammaService.Services
             return true;
         }
 
-        
+
         public bool? ActivateProductionTask(Guid productionTaskId, int placeId, int remotePrinterLabelId)
-	    {
-		    try
-		    {
-			    using (var gammaBase = new GammaEntities())
-			    {
+        {
+            try
+            {
+                using (var gammaBase = new GammaEntities())
+                {
                     /*if (gammaBase.Places.First(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
 					        .UseApplicator ?? false)
 				    {
@@ -76,16 +76,16 @@ namespace GammaService.Services
                     return device.LoadPackageLabelPNG(placeId, remotePrinterLabelId);
                 }
 
-		    }
-		    catch (Exception e)
-		    {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(DateTime.Now + " :Ошибка при активации задания " + productionTaskId.ToString());
                 Console.WriteLine(e);
-			    return false;
-		    }
-	    }
+                return false;
+            }
+        }
 
-        public bool? ChangePrinterStatus (int placeId, int remotePrinterLabelId)
+        public bool? ChangePrinterStatus(int placeId, int remotePrinterLabelId)
         {
             try
             {
@@ -167,6 +167,7 @@ namespace GammaService.Services
 
         private string GetGroupPackageLabelMD5(string filename)
         {
+            if (filename != null && !Directory.Exists(Path.GetDirectoryName(filename))) return "Техническая ошибка при чтении этикетки: каталог с этикетками недоступен. Обратитесь к техподдержке Гаммы.";
             try
             {
                 using (var md5 = System.Security.Cryptography.MD5.Create())
@@ -180,15 +181,26 @@ namespace GammaService.Services
             }
             catch
             {
-                return null;
+                return filename == null ? null : "Техническая ошибка при чтении этикетки: этикетка " + Path.GetFileName(filename) + " недоступна. Обратитесь в службу качества к Гилеву Д.С.";
             }
         }
+
         /// <summary>
         /// Обновление (при необходимости) изображения групповой этикетки в задании
         /// </summary>
         /// <param name="productionTaskId">ID задания</param>
         /// <returns></returns>
         public bool UpdateGroupPackageLabelInProductionTask(Guid productionTaskId)
+        {
+            var result =  UpdateGroupPackLabelInProductionTask(productionTaskId);
+            return result.Item1;
+        }
+         /// <summary>
+         /// Обновление (при необходимости) изображения групповой этикетки в задании
+         /// </summary>
+         /// <param name="productionTaskId">ID задания</param>
+         /// <returns></returns>
+        public Tuple<bool,string> UpdateGroupPackLabelInProductionTask(Guid productionTaskId)
         {
             try
             {
@@ -206,8 +218,12 @@ namespace GammaService.Services
                         gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
+                    var Place =
+                        gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
+                            .Select(p => p.Name)
+                            .FirstOrDefault();
                     var GroupPackageLabelMD5New = GetGroupPackageLabelMD5(LabelPath + GroupPackLabelPath);
-                    if (GroupPackageLabelMD5New != null)
+                    if (GroupPackageLabelMD5New != null && GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,20) == "Техническая проблема")
                     {
                         if (GroupPackageLabelMD5 != GroupPackageLabelMD5New)
                         {
@@ -232,7 +248,7 @@ namespace GammaService.Services
                                 productionTaskConverting.GroupPackLabelMD5 = GroupPackageLabelMD5New;
                             }
                             gammaBase.SaveChanges();
-                            Console.WriteLine(DateTime.Now + " :Обновлена групповой этикетки в задании " + productionTaskId.ToString());
+                            Console.WriteLine(DateTime.Now + " :Обновлена групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
                         }
                         /*else
                         {
@@ -244,18 +260,18 @@ namespace GammaService.Services
                     }
                     else
                     {
-                        Console.WriteLine(DateTime.Now + " :Ошибка: файл групповой этикетки "+ (LabelPath + GroupPackLabelPath).ToString() + " недоступен."); ;
-                        return false;
+                        Console.WriteLine(DateTime.Now + " :Ошибка: недоступен файл групповой этикетки "+ (LabelPath + GroupPackLabelPath).ToString() + " на переделе " + Place + " в задании " + productionTaskId.ToString());
+                        return new Tuple<bool, string>(false, GroupPackageLabelMD5New ?? "Техническая ошибка: недоступен файл групповой этикетки " + (LabelPath + GroupPackLabelPath).ToString()) ;
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании");
+                Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString());
                 Console.WriteLine(e);
-                return false;
+                return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
             }
-            return true;
+            return new Tuple<bool, string>(true, "");
         }
     }
 }
