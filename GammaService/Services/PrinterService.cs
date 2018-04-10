@@ -223,7 +223,7 @@ namespace GammaService.Services
                             .Select(p => p.Name)
                             .FirstOrDefault();
                     var GroupPackageLabelMD5New = GetGroupPackageLabelMD5(LabelPath + GroupPackLabelPath);
-                    if (GroupPackageLabelMD5New != null && GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,20) == "Техническая проблема")
+                    if (GroupPackageLabelMD5New != null && (GroupPackageLabelMD5New.Length < 18 || (GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,20) != "Техническая проблема")))
                     {
                         if (GroupPackageLabelMD5 != GroupPackageLabelMD5New)
                         {
