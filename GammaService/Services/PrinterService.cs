@@ -168,6 +168,7 @@ namespace GammaService.Services
         private string GetGroupPackageLabelMD5(string filename)
         {
             if (filename != null && !Directory.Exists(Path.GetDirectoryName(filename))) return "Техническая ошибка при чтении этикетки: каталог с этикетками недоступен. Обратитесь к техподдержке Гаммы.";
+            if (filename != null && !File.Exists(filename)) return "Техническая ошибка при чтении этикетки: этикетка " + Path.GetFileName(filename) + " недоступна. Обратитесь в службу качества к Гилеву Д.С.";
             try
             {
                 using (var md5 = System.Security.Cryptography.MD5.Create())
@@ -181,7 +182,7 @@ namespace GammaService.Services
             }
             catch
             {
-                return filename == null ? null : "Техническая ошибка при чтении этикетки: этикетка " + Path.GetFileName(filename) + " недоступна. Обратитесь в службу качества к Гилеву Д.С.";
+                return filename == null ? null : "Техническая ошибка при чтении этикетки: этикетка " + Path.GetFileName(filename) + " недоступна. Обратитесь к техподдержке Гаммы.";
             }
         }
 
@@ -202,6 +203,7 @@ namespace GammaService.Services
          /// <returns></returns>
         public Tuple<bool,string> UpdateGroupPackLabelInProductionTask(Guid productionTaskId)
         {
+            string Place = String.Empty;
             try
             {
                 using (var gammaBase = new GammaEntities())
@@ -218,7 +220,7 @@ namespace GammaService.Services
                         gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
-                    var Place =
+                    Place =
                         gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.Name)
                             .FirstOrDefault();
@@ -267,7 +269,7 @@ namespace GammaService.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString());
+                Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString() + " на переделе "+ Place);
                 Console.WriteLine(e);
                 return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
             }
