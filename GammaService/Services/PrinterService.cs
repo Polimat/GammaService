@@ -224,13 +224,29 @@ namespace GammaService.Services
                         gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.Name)
                             .FirstOrDefault();
+                    var GroupPackageLabelZPL =
+                        gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
+                            .Select(p => p.GroupPackLabelZPL)
+                            .FirstOrDefault();
                     var GroupPackageLabelMD5New = GetGroupPackageLabelMD5(LabelPath + GroupPackLabelPath);
                     if (GroupPackageLabelMD5New != null && (GroupPackageLabelMD5New.Length < 18 || (GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,20) != "Техническая проблема")))
                     {
-                        if (GroupPackageLabelMD5 != GroupPackageLabelMD5New)
+                        if ((GroupPackageLabelMD5 != GroupPackageLabelMD5New) | (GroupPackageLabelZPL == String.Empty | GroupPackageLabelZPL == null))
                         {
                             var GroupPackageLabelPNG = PdfPrint.PdfProcessingToPng(LabelPath + GroupPackLabelPath);
                             GroupPackageLabelMD5 = GroupPackageLabelMD5New;
+                            GroupPackageLabelZPL = string.Empty; ;
+                            GroupPackageLabelPNG.Seek(0, System.IO.SeekOrigin.Begin);
+                            int count = 0;
+                            while (count < GroupPackageLabelPNG.Length)
+                            {
+                                var b = GroupPackageLabelPNG.ReadByte();
+                                string hexRep = String.Format("{0:X}", Convert.ToByte(b));
+                                if (hexRep.Length == 1)
+                                    hexRep = "0" + hexRep;
+                                GroupPackageLabelZPL += hexRep;
+                                count++;
+                            }
 
                             var productionTaskConverting =
                             gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId).FirstOrDefault();
@@ -240,7 +256,8 @@ namespace GammaService.Services
                                 {
                                     ProductionTaskID = productionTaskId,
                                     GroupPackLabelPNG = GroupPackageLabelPNG.ToArray(),
-                                    GroupPackLabelMD5 = GroupPackageLabelMD5
+                                    GroupPackLabelMD5 = GroupPackageLabelMD5,
+                                    GroupPackLabelZPL = GroupPackageLabelZPL
                                 };
                                 gammaBase.ProductionTaskConverting.Add(productionTaskConverting);
                             }
@@ -248,6 +265,7 @@ namespace GammaService.Services
                             {
                                 productionTaskConverting.GroupPackLabelPNG = GroupPackageLabelPNG.ToArray();
                                 productionTaskConverting.GroupPackLabelMD5 = GroupPackageLabelMD5New;
+                                productionTaskConverting.GroupPackLabelZPL = GroupPackageLabelZPL;
                             }
                             gammaBase.SaveChanges();
                             Console.WriteLine(DateTime.Now + " :Обновлена групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());

@@ -183,6 +183,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="RobotProductDescription" Type="varchar" MaxLength="500" />
           <Property Name="GroupPackLabelPNG" Type="varbinary(max)" />
           <Property Name="GroupPackLabelMD5" Type="varchar" MaxLength="32" />
+          <Property Name="GroupPackLabelZPL" Type="varchar(max)" />
         </EntityType>
         <EntityType Name="ProductionTasks">
           <Key>
@@ -1517,6 +1518,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="GroupPackLabelPNG" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="GroupPackLabelMD5" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks" FromRole="ProductionTaskConverting" ToRole="ProductionTasks" />
+          <Property Name="GroupPackLabelZPL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_ProductionTaskConverting_ProductionTasks">
           <End Type="GammaNewModel.ProductionTasks" Role="ProductionTasks" Multiplicity="1">
@@ -1805,6 +1807,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="ProductionTaskConverting">
             <EntityTypeMapping TypeName="GammaNewModel.ProductionTaskConverting">
               <MappingFragment StoreEntitySet="ProductionTaskConverting">
+                <ScalarProperty Name="GroupPackLabelZPL" ColumnName="GroupPackLabelZPL" />
                 <ScalarProperty Name="GroupPackLabelMD5" ColumnName="GroupPackLabelMD5" />
                 <ScalarProperty Name="GroupPackLabelPNG" ColumnName="GroupPackLabelPNG" />
                 <ScalarProperty Name="RobotProductDescription" ColumnName="RobotProductDescription" />

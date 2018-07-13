@@ -193,9 +193,10 @@ namespace GammaService.Common
             try
             {
                 // Open connection
+                //Console.WriteLine(DateTime.Now + " :" + szRemotePrinterIpAdress + " :Соединяемся с принтером");
                 System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient();
                 client.Connect(szRemotePrinterIpAdress, (int)szRemotePrinterPort);
-
+                //Console.WriteLine(DateTime.Now + " :" + szRemotePrinterIpAdress + " :Соединение с принтером открыто");
                 // Write ZPL String to connection
                 Thread.Sleep(10);
                 System.IO.StreamWriter writer = new System.IO.StreamWriter(client.GetStream(), Encoding.UTF8);
@@ -204,13 +205,13 @@ namespace GammaService.Common
                 // Close Connection
                 writer.Close();
                 client.Close();
-                //Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                //Console.WriteLine(DateTime.Now + " :" + szRemotePrinterIpAdress + " :Соединение с принтером закрыто");
                 return true;
             }
             catch (Exception ex)
             {
                 // Catch Exception
-                //Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                //Console.WriteLine(DateTime.Now + " :" + szRemotePrinterIpAdress + " :При отправке данных в принтер произошла ошибка");
                 return false;
             }
 

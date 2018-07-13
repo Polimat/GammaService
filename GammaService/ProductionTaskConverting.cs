@@ -19,6 +19,7 @@ namespace GammaService
         public string RobotProductDescription { get; set; }
         public byte[] GroupPackLabelPNG { get; set; }
         public string GroupPackLabelMD5 { get; set; }
+        public string GroupPackLabelZPL { get; set; }
     
         public virtual ProductionTasks ProductionTasks { get; set; }
     }
