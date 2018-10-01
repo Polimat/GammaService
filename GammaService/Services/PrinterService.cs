@@ -68,19 +68,19 @@ namespace GammaService.Services
 					    return null;
 				    }
                     */
-                    ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && p.RemotePrinterLabelId == remotePrinterLabelId);
+                    ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                     if (device == null)
                     {
-                        return false;
+                        return null;
                     }
-                    return device.LoadPackageLabelPNG(placeId, remotePrinterLabelId);
+                    return ((bool)device.LoadPackageLabelPNG(placeId, device.RemotePrinterLabelId) && (device.LoadPackageLabelPath(placeId, device.RemotePrinterLabelId) ?? true));
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(DateTime.Now + " :Ошибка при активации задания " + productionTaskId.ToString());
-                Console.WriteLine(e);
+                Common.Console.WriteLine(DateTime.Now + " :Ошибка при активации задания " + productionTaskId.ToString());
+                Common.Console.WriteLine(e);
                 return false;
             }
         }
@@ -89,7 +89,7 @@ namespace GammaService.Services
         {
             try
             {
-                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && p.RemotePrinterLabelId == remotePrinterLabelId);
+                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                 if (device != null)
                 {
                     return device.ChangePrinterStatus();
@@ -97,7 +97,7 @@ namespace GammaService.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Common.Console.WriteLine(e);
                 return null;
             }
             return null;
@@ -107,7 +107,7 @@ namespace GammaService.Services
         {
             try
             {
-                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && p.RemotePrinterLabelId == remotePrinterLabelId);
+                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                 if (device != null)
                 {
                     return device.IsEnabledService;
@@ -115,7 +115,7 @@ namespace GammaService.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Common.Console.WriteLine(e);
                 return null;
             }
             return null;
@@ -125,7 +125,7 @@ namespace GammaService.Services
         {
             try
             {
-                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && p.RemotePrinterLabelId == remotePrinterLabelId);
+                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                 if (device != null)
                 {
                     device.InStatus = false;
@@ -135,7 +135,7 @@ namespace GammaService.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Common.Console.WriteLine(e);
                 return false;
             }
             return false;
@@ -145,7 +145,7 @@ namespace GammaService.Services
         {
             try
             {
-                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && p.RemotePrinterLabelId == remotePrinterLabelId);
+                ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                 if (device != null)
                 {
                     return device.ChangePrintPortStatus();
@@ -153,7 +153,7 @@ namespace GammaService.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Common.Console.WriteLine(e);
                 return null;
             }
             return null;
@@ -229,7 +229,7 @@ namespace GammaService.Services
                             .Select(p => p.GroupPackLabelZPL)
                             .FirstOrDefault();
                     var GroupPackageLabelMD5New = GetGroupPackageLabelMD5(LabelPath + GroupPackLabelPath);
-                    if (GroupPackageLabelMD5New != null && (GroupPackageLabelMD5New.Length < 18 || (GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,20) != "Техническая проблема")))
+                    if (GroupPackageLabelMD5New != null && (GroupPackageLabelMD5New.Length < 18 || (GroupPackageLabelMD5New.Length >= 18 && GroupPackageLabelMD5New.Substring(0,18) != "Техническая ошибка")))
                     {
                         if ((GroupPackageLabelMD5 != GroupPackageLabelMD5New) | (GroupPackageLabelZPL == String.Empty | GroupPackageLabelZPL == null))
                         {
@@ -268,7 +268,7 @@ namespace GammaService.Services
                                 productionTaskConverting.GroupPackLabelZPL = GroupPackageLabelZPL;
                             }
                             gammaBase.SaveChanges();
-                            Console.WriteLine(DateTime.Now + " :Обновлена групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
+                            Common.Console.WriteLine(DateTime.Now + " :Обновлена групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
                         }
                         /*else
                         {
@@ -280,15 +280,15 @@ namespace GammaService.Services
                     }
                     else
                     {
-                        Console.WriteLine(DateTime.Now + " :Ошибка: недоступен файл групповой этикетки "+ (LabelPath + GroupPackLabelPath).ToString() + " на переделе " + Place + " в задании " + productionTaskId.ToString());
+                        Common.Console.WriteLine(DateTime.Now + " :Ошибка: недоступен файл групповой этикетки "+ (LabelPath + GroupPackLabelPath).ToString() + " на переделе " + Place + " в задании " + productionTaskId.ToString());
                         return new Tuple<bool, string>(false, GroupPackageLabelMD5New ?? "Техническая ошибка: недоступен файл групповой этикетки " + (LabelPath + GroupPackLabelPath).ToString()) ;
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString() + " на переделе "+ Place);
-                Console.WriteLine(e);
+                Common.Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString() + " на переделе "+ Place);
+                Common.Console.WriteLine(e);
                 return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
             }
             return new Tuple<bool, string>(true, "");

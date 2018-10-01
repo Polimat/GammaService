@@ -25,6 +25,10 @@ namespace GammaService.Common
             try
             {
                 //pdfFileName = @"D:\ТекущаяЭтикетка.pdf";
+                /*if (pdfFileName == @"\\server1c\Gamma_pdf\uppstg\Syktyvkar\00000002178-lab_gr.pdf")
+                {
+                    pdfFileName = @"D:\\00000002178-lab_gr.pdf";
+                }*/
                 pdfPathStream = new FileStream(pdfFileName, FileMode.Open);
                 var mainRasterizer = CreateRasterizer(pdfPathStream); // нужен для посчета страниц
 
@@ -50,6 +54,30 @@ namespace GammaService.Common
                     pdfPathStream.Close();
             }
             }
+
+        public static bool PrintPNGDocument(byte[] imgPNG, string printerName = null)
+        {
+            FileStream pdfPathStream = null;
+
+            try
+            {
+                PageStore = new Dictionary<int, MemoryStream>();
+                PageStore.Add(1, new MemoryStream(imgPNG));
+                //Console.WriteLine("Start printing");
+                PrintPages(PageStore, printerName);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (pdfPathStream != null)
+                    pdfPathStream.Close();
+            }
+        }
 
         public static Dictionary<int, MemoryStream> PageStore; //хранилище отрендеренных изображений
         private const int Dpi = 200;

@@ -79,6 +79,7 @@
     <Compile Include="C1CMeasureUnits.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Common\Console.cs" />
     <Compile Include="Common\DeviceType.cs" />
     <Compile Include="Common\DocType.cs" />
     <Compile Include="Common\PdfPrint.cs" />

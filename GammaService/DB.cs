@@ -124,8 +124,8 @@ namespace GammaService
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
-                        Console.WriteLine(ex.Message + ":" + ex.InnerException);
+                        Common.Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
+                        Common.Console.WriteLine(ex.Message + ":" + ex.InnerException);
                         return null;
                     }
                     return docId;
@@ -133,8 +133,8 @@ namespace GammaService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
-                Console.WriteLine(ex.Message + ":" + ex.InnerException);
+                Common.Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
+                Common.Console.WriteLine(ex.Message + ":" + ex.InnerException);
                 return null;
             }
         }
