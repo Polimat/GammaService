@@ -12,22 +12,26 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class ModbusDevices
+    public partial class Departments
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ModbusDevices()
+        public Departments()
         {
-            this.PlaceRemotePrinters = new HashSet<PlaceRemotePrinters>();
+            this.LogEvents = new HashSet<LogEvents>();
+            this.Places = new HashSet<Places>();
+            this.Users = new HashSet<Users>();
         }
     
-        public int ModbusDeviceID { get; set; }
-        public int ModbusDeviceTypeID { get; set; }
-        public string IPAddress { get; set; }
+        public short DepartmentID { get; set; }
         public string Name { get; set; }
-        public int TimerTick { get; set; }
-        public string ServiceAddress { get; set; }
+        public string NameEng { get; set; }
+        public string Email { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PlaceRemotePrinters> PlaceRemotePrinters { get; set; }
+        public virtual ICollection<LogEvents> LogEvents { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Places> Places { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Users> Users { get; set; }
     }
 }

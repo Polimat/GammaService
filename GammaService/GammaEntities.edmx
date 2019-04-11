@@ -18,6 +18,7 @@
           <Property Name="IsActive" Type="bit" Nullable="false" />
           <Property Name="PrintName" Type="varchar" MaxLength="8000" />
           <Property Name="PackageLabelPath" Type="nvarchar" MaxLength="1024" />
+          <Property Name="1CDeleted" Type="bit" />
         </EntityType>
         <EntityType Name="1CMeasureUnits">
           <Key>
@@ -45,6 +46,22 @@
           <Property Name="UserID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="ShiftID" Type="tinyint" Nullable="false" />
           <Property Name="PrintName" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="Departments">
+          <Key>
+            <PropertyRef Name="DepartmentID" />
+          </Key>
+          <Property Name="DepartmentID" Type="smallint" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="255" />
+          <Property Name="NameEng" Type="varchar" MaxLength="255" />
+          <Property Name="Email" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="Devices">
+          <Key>
+            <PropertyRef Name="DeviceID" />
+          </Key>
+          <Property Name="DeviceID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="255" Nullable="false" />
         </EntityType>
         <EntityType Name="DocProduction">
           <Key>
@@ -112,6 +129,24 @@
           <Property Name="Quantity" Type="decimal" Precision="15" Scale="5" />
           <Property Name="CompleteWithdrawal" Type="bit" />
         </EntityType>
+        <EntityType Name="EventKinds">
+          <Key>
+            <PropertyRef Name="EventKindID" />
+          </Key>
+          <Property Name="EventKindID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsRemedyRequired" Type="bit" Nullable="false" />
+          <Property Name="IsVisible" Type="bit" />
+        </EntityType>
+        <EntityType Name="EventStates">
+          <Key>
+            <PropertyRef Name="EventStateID" />
+          </Key>
+          <Property Name="EventStateID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsVisible" Type="bit" Nullable="false" />
+          <Property Name="EventIsReadOnly" Type="bit" />
+        </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="LocalSettings">
@@ -119,8 +154,28 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <PropertyRef Name="BranchID" />
           </Key>
           <Property Name="BranchID" Type="int" Nullable="false" />
-          <Property Name="GammaServiceAddress" Type="varchar" MaxLength="250" />
+          <Property Name="MailServiceAddress" Type="varchar" MaxLength="250" />
           <Property Name="LabelPath" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="LogEvents">
+          <Key>
+            <PropertyRef Name="EventID" />
+          </Key>
+          <Property Name="EventID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlaceID" Type="int" />
+          <Property Name="DeviceID" Type="int" />
+          <Property Name="ShiftID" Type="tinyint" />
+          <Property Name="UserID" Type="uniqueidentifier" />
+          <Property Name="PrintName" Type="varchar" MaxLength="255" />
+          <Property Name="EventKindID" Type="int" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="8000" />
+          <Property Name="ParentEventID" Type="uniqueidentifier" />
+          <Property Name="IsSolved" Type="bit" />
+          <Property Name="DateSolved" Type="datetime" />
+          <Property Name="Number" Type="varchar" MaxLength="50" />
+          <Property Name="DepartmentID" Type="smallint" />
+          <Property Name="EventStateID" Type="int" />
         </EntityType>
         <EntityType Name="ModbusDevices">
           <Key>
@@ -131,15 +186,16 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="IPAddress" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="500" />
           <Property Name="TimerTick" Type="int" Nullable="false" />
+          <Property Name="ServiceAddress" Type="nvarchar" MaxLength="250" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinters">
           <Key>
             <PropertyRef Name="PlaceRemotePrinterID" />
           </Key>
+          <Property Name="PlaceRemotePrinterID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="PlaceID" Type="int" Nullable="false" />
           <Property Name="ModbusDeviceID" Type="int" Nullable="false" />
           <Property Name="RemotePrinterID" Type="int" Nullable="false" />
-          <Property Name="PlaceRemotePrinterID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="IsEnabled" Type="bit" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinterSettings">
@@ -156,7 +212,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <PropertyRef Name="PlaceID" />
           </Key>
           <Property Name="PlaceID" Type="int" Nullable="false" />
-          <Property Name="PlaceGuid" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PlaceGuid" Type="uniqueidentifier" />
           <Property Name="BranchID" Type="int" Nullable="false" />
           <Property Name="BranchUnitID" Type="int" />
           <Property Name="Name" Type="varchar" MaxLength="64" />
@@ -262,6 +318,25 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="Template" Type="image" />
           <Property Name="Version" Type="varchar" MaxLength="30" />
         </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="RoleID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Login" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="200" />
+          <Property Name="Post" Type="varchar" MaxLength="200" />
+          <Property Name="PostTypeID" Type="int" />
+          <Property Name="PassChange" Type="datetime" />
+          <Property Name="PassMustChange" Type="bit" />
+          <Property Name="Exports" Type="bit" Nullable="false" />
+          <Property Name="DBAdmin" Type="bit" Nullable="false" />
+          <Property Name="ProgramAdmin" Type="bit" />
+          <Property Name="ShiftID" Type="tinyint" Nullable="false" />
+          <Property Name="MobileComputer" Type="bit" />
+          <Property Name="DepartmentID" Type="smallint" />
+        </EntityType>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Role="1CMeasureUnits" Type="Self.1CMeasureUnits" Multiplicity="0..1" />
           <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="*" />
@@ -319,6 +394,18 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Principal>
             <Dependent Role="CurrentPlaceUsers">
               <PropertyRef Name="PlaceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CurrentPlaceUsers_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="CurrentPlaceUsers" Type="Self.CurrentPlaceUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="CurrentPlaceUsers">
+              <PropertyRef Name="UserID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -424,6 +511,18 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Docs_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Docs" Type="Self.Docs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Docs">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_DocWithdrawal_Docs">
           <End Role="Docs" Type="Self.Docs" Multiplicity="1" />
           <End Role="DocWithdrawal" Type="Self.DocWithdrawal" Multiplicity="0..1" />
@@ -472,6 +571,78 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_LogEvents_Departments">
+          <End Role="Departments" Type="Self.Departments" Multiplicity="0..1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_Devices">
+          <End Role="Devices" Type="Self.Devices" Multiplicity="0..1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Devices">
+              <PropertyRef Name="DeviceID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="DeviceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_EventKinds">
+          <End Role="EventKinds" Type="Self.EventKinds" Multiplicity="1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventKinds">
+              <PropertyRef Name="EventKindID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="EventKindID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_LogEvents">
+          <End Role="EventStates" Type="Self.EventStates" Multiplicity="0..1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventStates">
+              <PropertyRef Name="EventStateID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="EventStateID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_Places">
+          <End Role="Places" Type="Self.Places" Multiplicity="0..1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Places">
+              <PropertyRef Name="PlaceID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="PlaceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="LogEvents" Type="Self.LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PlaceRemotePrinters_ModbusDevices">
           <End Role="ModbusDevices" Type="Self.ModbusDevices" Multiplicity="1" />
           <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="*" />
@@ -509,9 +680,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
-          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
+          <End Role="PlaceRemotePrinters" Type="Self.PlaceRemotePrinters" Multiplicity="1" />
           <End Role="PlaceRemotePrinterSettings" Type="Self.PlaceRemotePrinterSettings" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="PlaceRemotePrinters">
@@ -519,6 +688,18 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Principal>
             <Dependent Role="PlaceRemotePrinterSettings">
               <PropertyRef Name="PlaceRemotePrinterID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Places_Departments">
+          <End Role="Departments" Type="Self.Departments" Multiplicity="1" />
+          <End Role="Places" Type="Self.Places" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="Places">
+              <PropertyRef Name="DepartmentID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -596,6 +777,18 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_RemotePrinters_RemotePrinterLabels">
+          <End Role="RemotePrinterLabels" Type="Self.RemotePrinterLabels" Multiplicity="1" />
+          <End Role="RemotePrinters" Type="Self.RemotePrinters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RemotePrinterLabels">
+              <PropertyRef Name="RemotePrinterLabelID" />
+            </Principal>
+            <Dependent Role="RemotePrinters">
+              <PropertyRef Name="RemotePrinterLabelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Templates_Reports">
           <End Role="Reports" Type="Self.Reports" Multiplicity="0..1" />
           <End Role="Templates" Type="Self.Templates" Multiplicity="*" />
@@ -608,6 +801,18 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Users_Departments">
+          <End Role="Departments" Type="Self.Departments" Multiplicity="0..1" />
+          <End Role="Users" Type="Self.Users" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="Users">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="GetActiveSourceSpools" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="PlaceID" Type="int" Mode="In" />
         </Function>
@@ -616,12 +821,17 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySet Name="1CMeasureUnits" EntityType="Self.1CMeasureUnits" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ActiveProductionTasks" EntityType="Self.ActiveProductionTasks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CurrentPlaceUsers" EntityType="Self.CurrentPlaceUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Departments" EntityType="Self.Departments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Devices" EntityType="Self.Devices" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocProduction" EntityType="Self.DocProduction" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocProductionProducts" EntityType="Self.DocProductionProducts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocProductionWithdrawals" EntityType="Self.DocProductionWithdrawals" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Docs" EntityType="Self.Docs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocWithdrawal" EntityType="Self.DocWithdrawal" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocWithdrawalProducts" EntityType="Self.DocWithdrawalProducts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EventKinds" EntityType="Self.EventKinds" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EventStates" EntityType="Self.EventStates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LogEvents" EntityType="Self.LogEvents" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ModbusDevices" EntityType="Self.ModbusDevices" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PlaceRemotePrinters" EntityType="Self.PlaceRemotePrinters" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PlaceRemotePrinterSettings" EntityType="Self.PlaceRemotePrinterSettings" Schema="dbo" store:Type="Tables" />
@@ -635,10 +845,11 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySet Name="RemotePrinters" EntityType="Self.RemotePrinters" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Reports" EntityType="Self.Reports" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Templates" EntityType="Self.Templates" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LocalSettings" EntityType="Self.LocalSettings" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [LocalSettings].[BranchID] AS [BranchID], 
-    [LocalSettings].[GammaServiceAddress] AS [GammaServiceAddress], 
+    [LocalSettings].[MailServiceAddress] AS [MailServiceAddress], 
     [LocalSettings].[LabelPath] AS [LabelPath]
     FROM [dbo].[LocalSettings] AS [LocalSettings]</DefiningQuery>
           </EntitySet>
@@ -660,6 +871,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           </AssociationSet>
           <AssociationSet Name="FK_CurrentPlaceUsers_Places" Association="Self.FK_CurrentPlaceUsers_Places">
             <End Role="Places" EntitySet="Places" />
+            <End Role="CurrentPlaceUsers" EntitySet="CurrentPlaceUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CurrentPlaceUsers_Users" Association="Self.FK_CurrentPlaceUsers_Users">
+            <End Role="Users" EntitySet="Users" />
             <End Role="CurrentPlaceUsers" EntitySet="CurrentPlaceUsers" />
           </AssociationSet>
           <AssociationSet Name="FK_DocProduction_Docs" Association="Self.FK_DocProduction_Docs">
@@ -694,6 +909,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <End Role="Places" EntitySet="Places" />
             <End Role="Docs" EntitySet="Docs" />
           </AssociationSet>
+          <AssociationSet Name="FK_Docs_Users" Association="Self.FK_Docs_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Docs" EntitySet="Docs" />
+          </AssociationSet>
           <AssociationSet Name="FK_DocWithdrawal_Docs" Association="Self.FK_DocWithdrawal_Docs">
             <End Role="Docs" EntitySet="Docs" />
             <End Role="DocWithdrawal" EntitySet="DocWithdrawal" />
@@ -710,6 +929,30 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <End Role="Products" EntitySet="Products" />
             <End Role="DocWithdrawalProducts" EntitySet="DocWithdrawalProducts" />
           </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Departments" Association="Self.FK_LogEvents_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Devices" Association="Self.FK_LogEvents_Devices">
+            <End Role="Devices" EntitySet="Devices" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_EventKinds" Association="Self.FK_LogEvents_EventKinds">
+            <End Role="EventKinds" EntitySet="EventKinds" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_LogEvents" Association="Self.FK_LogEvents_LogEvents">
+            <End Role="EventStates" EntitySet="EventStates" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Places" Association="Self.FK_LogEvents_Places">
+            <End Role="Places" EntitySet="Places" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Users" Association="Self.FK_LogEvents_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
           <AssociationSet Name="FK_PlaceRemotePrinters_ModbusDevices" Association="Self.FK_PlaceRemotePrinters_ModbusDevices">
             <End Role="ModbusDevices" EntitySet="ModbusDevices" />
             <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
@@ -725,6 +968,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <AssociationSet Name="FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" Association="Self.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters">
             <End Role="PlaceRemotePrinters" EntitySet="PlaceRemotePrinters" />
             <End Role="PlaceRemotePrinterSettings" EntitySet="PlaceRemotePrinterSettings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Places_Departments" Association="Self.FK_Places_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Places" EntitySet="Places" />
           </AssociationSet>
           <AssociationSet Name="FK_ProductionTaskConverting_ProductionTasks" Association="Self.FK_ProductionTaskConverting_ProductionTasks">
             <End Role="ProductionTasks" EntitySet="ProductionTasks" />
@@ -750,9 +997,17 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <End Role="Products" EntitySet="Products" />
             <End Role="ProductPallets" EntitySet="ProductPallets" />
           </AssociationSet>
+          <AssociationSet Name="FK_RemotePrinters_RemotePrinterLabels" Association="Self.FK_RemotePrinters_RemotePrinterLabels">
+            <End Role="RemotePrinterLabels" EntitySet="RemotePrinterLabels" />
+            <End Role="RemotePrinters" EntitySet="RemotePrinters" />
+          </AssociationSet>
           <AssociationSet Name="FK_Templates_Reports" Association="Self.FK_Templates_Reports">
             <End Role="Reports" EntitySet="Reports" />
             <End Role="Templates" EntitySet="Templates" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Users_Departments" Association="Self.FK_Users_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Users" EntitySet="Users" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -940,6 +1195,56 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <End Role="ProductionTasks" EntitySet="ProductionTasks" />
             <End Role="ProductionTaskConverting" EntitySet="ProductionTaskConverting" />
           </AssociationSet>
+          <EntitySet Name="Departments" EntityType="GammaNewModel.Departments" />
+          <EntitySet Name="LogEvents" EntityType="GammaNewModel.LogEvents" />
+          <AssociationSet Name="FK_LogEvents_Departments" Association="GammaNewModel.FK_LogEvents_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Places_Departments" Association="GammaNewModel.FK_Places_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Places" EntitySet="Places" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Places" Association="GammaNewModel.FK_LogEvents_Places">
+            <End Role="Places" EntitySet="Places" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RemotePrinters_RemotePrinterLabels" Association="GammaNewModel.FK_RemotePrinters_RemotePrinterLabels">
+            <End Role="RemotePrinterLabels" EntitySet="RemotePrinterLabels" />
+            <End Role="RemotePrinters" EntitySet="RemotePrinters" />
+          </AssociationSet>
+          <EntitySet Name="Devices" EntityType="GammaNewModel.Devices" />
+          <EntitySet Name="EventKinds" EntityType="GammaNewModel.EventKinds" />
+          <EntitySet Name="EventStates" EntityType="GammaNewModel.EventStates" />
+          <AssociationSet Name="FK_LogEvents_Devices" Association="GammaNewModel.FK_LogEvents_Devices">
+            <End Role="Devices" EntitySet="Devices" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_EventKinds" Association="GammaNewModel.FK_LogEvents_EventKinds">
+            <End Role="EventKinds" EntitySet="EventKinds" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_LogEvents" Association="GammaNewModel.FK_LogEvents_LogEvents">
+            <End Role="EventStates" EntitySet="EventStates" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
+          <EntitySet Name="Users" EntityType="GammaNewModel.Users" />
+          <AssociationSet Name="FK_CurrentPlaceUsers_Users" Association="GammaNewModel.FK_CurrentPlaceUsers_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="CurrentPlaceUsers" EntitySet="CurrentPlaceUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Users_Departments" Association="GammaNewModel.FK_Users_Departments">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Users" EntitySet="Users" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Docs_Users" Association="GammaNewModel.FK_Docs_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Docs" EntitySet="Docs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LogEvents_Users" Association="GammaNewModel.FK_LogEvents_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LogEvents" EntitySet="LogEvents" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="ModbusDevices">
           <Key>
@@ -951,6 +1256,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="Name" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="TimerTick" Type="Int32" Nullable="false" />
           <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_ModbusDevices" FromRole="ModbusDevices" ToRole="PlaceRemotePrinters" />
+          <Property Name="ServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="CurrentPlaceUsers">
           <Key>
@@ -961,6 +1267,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="ShiftID" Type="Byte" Nullable="false" />
           <Property Name="PrintName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_CurrentPlaceUsers_Places" FromRole="CurrentPlaceUsers" ToRole="Places" />
+          <NavigationProperty Name="Users" Relationship="GammaNewModel.FK_CurrentPlaceUsers_Users" FromRole="CurrentPlaceUsers" ToRole="Users" />
         </EntityType>
         <EntityType Name="DocProduction">
           <Key>
@@ -1012,6 +1319,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="BranchID" Type="Byte" />
           <Property Name="PersonGuid" Type="Guid" />
           <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_Docs_Places" FromRole="Docs" ToRole="Places" />
+          <NavigationProperty Name="Users" Relationship="GammaNewModel.FK_Docs_Users" FromRole="Docs" ToRole="Users" />
         </EntityType>
         <EntityType Name="DocWithdrawal">
           <Key>
@@ -1246,6 +1554,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="C1CMeasureUnitsPallet" Relationship="GammaNewModel.FK_1CCharacteristics_1CMeasureUnits1" FromRole="C1CCharacteristics" ToRole="C1CMeasureUnits" />
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTasks_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductionTasks" />
           <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductItems" />
+          <Property Name="C1CDeleted" Type="Boolean" />
         </EntityType>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Type="GammaNewModel.C1CMeasureUnits" Role="C1CMeasureUnits" Multiplicity="0..1" />
@@ -1300,7 +1609,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <PropertyRef Name="PlaceID" />
           </Key>
           <Property Name="PlaceID" Type="Int32" Nullable="false" />
-          <Property Name="PlaceGuid" Type="Guid" Nullable="false" />
+          <Property Name="PlaceGuid" Type="Guid" />
           <Property Name="BranchID" Type="Int32" Nullable="false" />
           <Property Name="BranchUnitID" Type="Int32" />
           <Property Name="Name" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
@@ -1324,6 +1633,8 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTasks_Places" FromRole="Places" ToRole="ProductionTasks" />
           <Property Name="IsRobot" Type="Boolean" />
           <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_Places" FromRole="Places" ToRole="PlaceRemotePrinters" />
+          <NavigationProperty Name="Departments" Relationship="GammaNewModel.FK_Places_Departments" FromRole="Places" ToRole="Departments" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_Places" FromRole="Places" ToRole="LogEvents" />
         </EntityType>
         <Association Name="FK_ActiveProductionTasks_Places">
           <End Type="GammaNewModel.Places" Role="Places" Multiplicity="1" />
@@ -1408,6 +1719,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="RemotePrinterLabelID" Type="Int32" Nullable="false" />
           <Property Name="IpAdress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
           <Property Name="Port" Type="Int32" />
+          <NavigationProperty Name="RemotePrinterLabels" Relationship="GammaNewModel.FK_RemotePrinters_RemotePrinterLabels" FromRole="RemotePrinters" ToRole="RemotePrinterLabels" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinters">
           <Key>
@@ -1499,13 +1811,14 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           </Key>
           <Property Name="RemotePrinterLabelID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="LabelName" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RemotePrinters" Relationship="GammaNewModel.FK_RemotePrinters_RemotePrinterLabels" FromRole="RemotePrinterLabels" ToRole="RemotePrinters" />
         </EntityType>
         <EntityType Name="LocalSettings">
           <Key>
             <PropertyRef Name="BranchID" />
           </Key>
           <Property Name="BranchID" Type="Int32" Nullable="false" />
-          <Property Name="GammaServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="MailServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="LabelPath" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="ProductionTaskConverting">
@@ -1531,6 +1844,227 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Principal>
             <Dependent Role="ProductionTaskConverting">
               <PropertyRef Name="ProductionTaskID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Departments">
+          <Key>
+            <PropertyRef Name="DepartmentID" />
+          </Key>
+          <Property Name="DepartmentID" Type="Int16" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="NameEng" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_Departments" FromRole="Departments" ToRole="LogEvents" />
+          <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_Places_Departments" FromRole="Departments" ToRole="Places" />
+          <NavigationProperty Name="Users" Relationship="GammaNewModel.FK_Users_Departments" FromRole="Departments" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="LogEvents">
+          <Key>
+            <PropertyRef Name="EventID" />
+          </Key>
+          <Property Name="EventID" Type="Guid" Nullable="false" />
+          <Property Name="PlaceID" Type="Int32" />
+          <Property Name="DeviceID" Type="Int32" />
+          <Property Name="ShiftID" Type="Byte" />
+          <Property Name="UserID" Type="Guid" />
+          <Property Name="PrintName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="EventKindID" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Description" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" />
+          <Property Name="ParentEventID" Type="Guid" />
+          <Property Name="IsSolved" Type="Boolean" />
+          <Property Name="DateSolved" Type="DateTime" Precision="3" />
+          <Property Name="Number" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentID" Type="Int16" />
+          <Property Name="EventStateID" Type="Int32" />
+          <NavigationProperty Name="Departments" Relationship="GammaNewModel.FK_LogEvents_Departments" FromRole="LogEvents" ToRole="Departments" />
+          <NavigationProperty Name="Places" Relationship="GammaNewModel.FK_LogEvents_Places" FromRole="LogEvents" ToRole="Places" />
+          <NavigationProperty Name="Devices" Relationship="GammaNewModel.FK_LogEvents_Devices" FromRole="LogEvents" ToRole="Devices" />
+          <NavigationProperty Name="EventKinds" Relationship="GammaNewModel.FK_LogEvents_EventKinds" FromRole="LogEvents" ToRole="EventKinds" />
+          <NavigationProperty Name="EventStates" Relationship="GammaNewModel.FK_LogEvents_LogEvents" FromRole="LogEvents" ToRole="EventStates" />
+          <NavigationProperty Name="Users" Relationship="GammaNewModel.FK_LogEvents_Users" FromRole="LogEvents" ToRole="Users" />
+        </EntityType>
+        <Association Name="FK_LogEvents_Departments">
+          <End Type="GammaNewModel.Departments" Role="Departments" Multiplicity="0..1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Places_Departments">
+          <End Type="GammaNewModel.Departments" Role="Departments" Multiplicity="1" />
+          <End Type="GammaNewModel.Places" Role="Places" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="Places">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_Places">
+          <End Type="GammaNewModel.Places" Role="Places" Multiplicity="0..1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Places">
+              <PropertyRef Name="PlaceID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="PlaceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RemotePrinters_RemotePrinterLabels">
+          <End Type="GammaNewModel.RemotePrinterLabels" Role="RemotePrinterLabels" Multiplicity="1" />
+          <End Type="GammaNewModel.RemotePrinters" Role="RemotePrinters" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RemotePrinterLabels">
+              <PropertyRef Name="RemotePrinterLabelID" />
+            </Principal>
+            <Dependent Role="RemotePrinters">
+              <PropertyRef Name="RemotePrinterLabelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Devices">
+          <Key>
+            <PropertyRef Name="DeviceID" />
+          </Key>
+          <Property Name="DeviceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_Devices" FromRole="Devices" ToRole="LogEvents" />
+        </EntityType>
+        <EntityType Name="EventKinds">
+          <Key>
+            <PropertyRef Name="EventKindID" />
+          </Key>
+          <Property Name="EventKindID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsRemedyRequired" Type="Boolean" Nullable="false" />
+          <Property Name="IsVisible" Type="Boolean" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_EventKinds" FromRole="EventKinds" ToRole="LogEvents" />
+        </EntityType>
+        <EntityType Name="EventStates">
+          <Key>
+            <PropertyRef Name="EventStateID" />
+          </Key>
+          <Property Name="EventStateID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsVisible" Type="Boolean" Nullable="false" />
+          <Property Name="EventIsReadOnly" Type="Boolean" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_LogEvents" FromRole="EventStates" ToRole="LogEvents" />
+        </EntityType>
+        <Association Name="FK_LogEvents_Devices">
+          <End Type="GammaNewModel.Devices" Role="Devices" Multiplicity="0..1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Devices">
+              <PropertyRef Name="DeviceID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="DeviceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_EventKinds">
+          <End Type="GammaNewModel.EventKinds" Role="EventKinds" Multiplicity="1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventKinds">
+              <PropertyRef Name="EventKindID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="EventKindID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_LogEvents">
+          <End Type="GammaNewModel.EventStates" Role="EventStates" Multiplicity="0..1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventStates">
+              <PropertyRef Name="EventStateID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="EventStateID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="Guid" Nullable="false" />
+          <Property Name="RoleID" Type="Guid" Nullable="false" />
+          <Property Name="Login" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Post" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="PostTypeID" Type="Int32" />
+          <Property Name="PassChange" Type="DateTime" Precision="3" />
+          <Property Name="PassMustChange" Type="Boolean" />
+          <Property Name="Exports" Type="Boolean" Nullable="false" />
+          <Property Name="DBAdmin" Type="Boolean" Nullable="false" />
+          <Property Name="ProgramAdmin" Type="Boolean" />
+          <Property Name="ShiftID" Type="Byte" Nullable="false" />
+          <Property Name="MobileComputer" Type="Boolean" />
+          <Property Name="DepartmentID" Type="Int16" />
+          <NavigationProperty Name="CurrentPlaceUsers" Relationship="GammaNewModel.FK_CurrentPlaceUsers_Users" FromRole="Users" ToRole="CurrentPlaceUsers" />
+          <NavigationProperty Name="Departments" Relationship="GammaNewModel.FK_Users_Departments" FromRole="Users" ToRole="Departments" />
+          <NavigationProperty Name="Docs" Relationship="GammaNewModel.FK_Docs_Users" FromRole="Users" ToRole="Docs" />
+          <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_Users" FromRole="Users" ToRole="LogEvents" />
+        </EntityType>
+        <Association Name="FK_CurrentPlaceUsers_Users">
+          <End Type="GammaNewModel.Users" Role="Users" Multiplicity="1" />
+          <End Type="GammaNewModel.CurrentPlaceUsers" Role="CurrentPlaceUsers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="CurrentPlaceUsers">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Users_Departments">
+          <End Type="GammaNewModel.Departments" Role="Departments" Multiplicity="0..1" />
+          <End Type="GammaNewModel.Users" Role="Users" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="Users">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Docs_Users">
+          <End Type="GammaNewModel.Users" Role="Users" Multiplicity="0..1" />
+          <End Type="GammaNewModel.Docs" Role="Docs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Docs">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LogEvents_Users">
+          <End Type="GammaNewModel.Users" Role="Users" Multiplicity="0..1" />
+          <End Type="GammaNewModel.LogEvents" Role="LogEvents" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="LogEvents">
+              <PropertyRef Name="UserID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1572,6 +2106,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="ModbusDevices">
             <EntityTypeMapping TypeName="GammaNewModel.ModbusDevices">
               <MappingFragment StoreEntitySet="ModbusDevices">
+                <ScalarProperty Name="ServiceAddress" ColumnName="ServiceAddress" />
                 <ScalarProperty Name="TimerTick" ColumnName="TimerTick" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="IPAddress" ColumnName="IPAddress" />
@@ -1719,6 +2254,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="C1CCharacteristics">
             <EntityTypeMapping TypeName="GammaNewModel.C1CCharacteristics">
               <MappingFragment StoreEntitySet="1CCharacteristics">
+                <ScalarProperty Name="C1CDeleted" ColumnName="1CDeleted" />
                 <ScalarProperty Name="PackageLabelPath" ColumnName="PackageLabelPath" />
                 <ScalarProperty Name="PrintName" ColumnName="PrintName" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
@@ -1799,7 +2335,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <EntityTypeMapping TypeName="GammaNewModel.LocalSettings">
               <MappingFragment StoreEntitySet="LocalSettings">
                 <ScalarProperty Name="LabelPath" ColumnName="LabelPath" />
-                <ScalarProperty Name="GammaServiceAddress" ColumnName="GammaServiceAddress" />
+                <ScalarProperty Name="MailServiceAddress" ColumnName="MailServiceAddress" />
                 <ScalarProperty Name="BranchID" ColumnName="BranchID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -1813,6 +2349,85 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
                 <ScalarProperty Name="RobotProductDescription" ColumnName="RobotProductDescription" />
                 <ScalarProperty Name="RobotProductNumber" ColumnName="RobotProductNumber" />
                 <ScalarProperty Name="ProductionTaskID" ColumnName="ProductionTaskID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="GammaNewModel.Departments">
+              <MappingFragment StoreEntitySet="Departments">
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="NameEng" ColumnName="NameEng" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LogEvents">
+            <EntityTypeMapping TypeName="GammaNewModel.LogEvents">
+              <MappingFragment StoreEntitySet="LogEvents">
+                <ScalarProperty Name="EventStateID" ColumnName="EventStateID" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+                <ScalarProperty Name="Number" ColumnName="Number" />
+                <ScalarProperty Name="DateSolved" ColumnName="DateSolved" />
+                <ScalarProperty Name="IsSolved" ColumnName="IsSolved" />
+                <ScalarProperty Name="ParentEventID" ColumnName="ParentEventID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="EventKindID" ColumnName="EventKindID" />
+                <ScalarProperty Name="PrintName" ColumnName="PrintName" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="ShiftID" ColumnName="ShiftID" />
+                <ScalarProperty Name="DeviceID" ColumnName="DeviceID" />
+                <ScalarProperty Name="PlaceID" ColumnName="PlaceID" />
+                <ScalarProperty Name="EventID" ColumnName="EventID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Devices">
+            <EntityTypeMapping TypeName="GammaNewModel.Devices">
+              <MappingFragment StoreEntitySet="Devices">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="DeviceID" ColumnName="DeviceID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EventKinds">
+            <EntityTypeMapping TypeName="GammaNewModel.EventKinds">
+              <MappingFragment StoreEntitySet="EventKinds">
+                <ScalarProperty Name="IsVisible" ColumnName="IsVisible" />
+                <ScalarProperty Name="IsRemedyRequired" ColumnName="IsRemedyRequired" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="EventKindID" ColumnName="EventKindID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EventStates">
+            <EntityTypeMapping TypeName="GammaNewModel.EventStates">
+              <MappingFragment StoreEntitySet="EventStates">
+                <ScalarProperty Name="EventIsReadOnly" ColumnName="EventIsReadOnly" />
+                <ScalarProperty Name="IsVisible" ColumnName="IsVisible" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="EventStateID" ColumnName="EventStateID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="GammaNewModel.Users">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+                <ScalarProperty Name="MobileComputer" ColumnName="MobileComputer" />
+                <ScalarProperty Name="ShiftID" ColumnName="ShiftID" />
+                <ScalarProperty Name="ProgramAdmin" ColumnName="ProgramAdmin" />
+                <ScalarProperty Name="DBAdmin" ColumnName="DBAdmin" />
+                <ScalarProperty Name="Exports" ColumnName="Exports" />
+                <ScalarProperty Name="PassMustChange" ColumnName="PassMustChange" />
+                <ScalarProperty Name="PassChange" ColumnName="PassChange" />
+                <ScalarProperty Name="PostTypeID" ColumnName="PostTypeID" />
+                <ScalarProperty Name="Post" ColumnName="Post" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Login" ColumnName="Login" />
+                <ScalarProperty Name="RoleID" ColumnName="RoleID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

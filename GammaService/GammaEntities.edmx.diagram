@@ -56,6 +56,23 @@
         <EntityTypeShape EntityType="GammaNewModel.LocalSettings" Width="1.5" PointX="12.375" PointY="8.75" />
         <EntityTypeShape EntityType="GammaNewModel.ProductionTaskConverting" Width="1.5" PointX="12.625" PointY="11.875" />
         <AssociationConnector Association="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks" />
+        <EntityTypeShape EntityType="GammaNewModel.Departments" Width="1.5" PointX="0.75" PointY="9.875" />
+        <EntityTypeShape EntityType="GammaNewModel.LogEvents" Width="1.5" PointX="10.25" PointY="0.75" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_Departments" />
+        <AssociationConnector Association="GammaNewModel.FK_Places_Departments" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_Places" />
+        <AssociationConnector Association="GammaNewModel.FK_RemotePrinters_RemotePrinterLabels" />
+        <EntityTypeShape EntityType="GammaNewModel.Devices" Width="1.5" PointX="8" PointY="17" />
+        <EntityTypeShape EntityType="GammaNewModel.EventKinds" Width="1.5" PointX="8" PointY="19.375" />
+        <EntityTypeShape EntityType="GammaNewModel.EventStates" Width="1.5" PointX="14.375" PointY="8.875" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_Devices" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_EventKinds" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_LogEvents" />
+        <EntityTypeShape EntityType="GammaNewModel.Users" Width="1.5" PointX="3" PointY="15.75" />
+        <AssociationConnector Association="GammaNewModel.FK_CurrentPlaceUsers_Users" />
+        <AssociationConnector Association="GammaNewModel.FK_Users_Departments" />
+        <AssociationConnector Association="GammaNewModel.FK_Docs_Users" />
+        <AssociationConnector Association="GammaNewModel.FK_LogEvents_Users" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

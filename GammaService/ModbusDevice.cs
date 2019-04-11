@@ -10,13 +10,61 @@ using System.IO;
 using System.Linq;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.ServiceModel;
+using System.ServiceModel.Description;
+using GammaService.Services;
+using GammaService.Interfaces;
 
 namespace GammaService
 {
     public class ModbusDevice
     {
-        public ModbusDevice(DeviceType deviceType, string ipAddress, string modbusName, int placeId, string printerName, int remotePrinterLabelId, Dictionary<string,string> placeRemotePrinterSettings, int timerTickTime, string remotePrinterIpAdress, int? remotePrinterPort)
+        public ModbusDevice(DeviceType deviceType, string ipAddress, string modbusName, int placeId, string printerName, int remotePrinterLabelId, Dictionary<string,string> placeRemotePrinterSettings, int timerTickTime, string remotePrinterIpAdress, int? remotePrinterPort, string serviceAddress)
         {
+            /*
+            //myServiceHost = new ServiceHost(typeof(PrinterService), new Uri(serviceAddress));
+            Uri baseAddress = new Uri(serviceAddress);
+            //string address = "";// serviceAddress + modbusName+"/";
+
+            myServiceHost = new ServiceHost(typeof(PrinterService), baseAddress);
+
+            //// Check to see if the service host already has a ServiceMetadataBehavior
+            //ServiceMetadataBehavior smb = myServiceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
+            //// If not, add one
+            //if (smb == null)
+            //    smb = new ServiceMetadataBehavior();
+            //smb.HttpGetEnabled = true;
+            //smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
+            //myServiceHost.Description.Behaviors.Add(smb);
+            //// Add MEX endpoint
+            //myServiceHost.AddServiceEndpoint(
+            //  ServiceMetadataBehavior.MexContractName,
+            //  MetadataExchangeBindings.CreateMexHttpBinding(),
+            //  "mex"
+            //);
+            //myServiceHost.AddServiceEndpoint(typeof(IPrinterService), new BasicHttpBinding(), address);
+            try
+            {
+                myServiceHost.Open();
+            }
+            catch (InvalidOperationException ieProblem)
+            {
+                //if (!(Program.ModbusDevicesID.Contains(0)))
+                //{
+                //    Common.Console.WriteLine("There was a operation problem." + ieProblem.Message + ieProblem.StackTrace);
+                //    Program.CloseProgram();
+                //}
+            }
+            
+            catch (CommunicationException commProblem)
+            {
+                if (!(Program.ModbusDevicesID.Contains(0)))
+                {
+                    Common.Console.WriteLine("There was a communication problem." + commProblem.Message + commProblem.StackTrace);
+                    Program.CloseProgram();
+                }
+            }
+            */
             IpAddress = ipAddress;
             DeviceType = deviceType;
             ModbusName = modbusName;
@@ -28,6 +76,7 @@ namespace GammaService
             //SignalChannelNumber = signalChannelNumber;
             //ConfirmChannelNumber = confirmChannelNumber;
             PlaceRemotePrinterSettings = placeRemotePrinterSettings;
+            ServiceAddress = serviceAddress;
             string value;
             PlaceRemotePrinterSettings.TryGetValue("SignalChannelNumber", out value);
             if (value != null)
@@ -52,6 +101,9 @@ namespace GammaService
                 MainTimer = new Timer(ReadCoil, null, 0, timerTickTime);
         }
 
+        private static ServiceHost myServiceHost = null;
+
+        public string ServiceAddress { get; set; }
         public string IpAddress { get; set; }
         private DeviceType DeviceType { get; set; }
         public string ModbusName { get; set; }
@@ -191,7 +243,6 @@ namespace GammaService
 
         public bool ChangePrinterStatus()
         {
-            Common.Console.WriteLine("Printer status of " + ModbusName + " change to " + !IsEnabledService);
             return IsEnabledService = !IsEnabledService;
         }
 
@@ -201,11 +252,18 @@ namespace GammaService
             {
                 if (!AdamModbus.Connected || countReadCoilStatusFalse > 10)
                 {
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " " + IpAddress + " AdamModbus.Connected-" + AdamModbus.Connected ?? "NULL" + " IsConnected-" + IsConnected);
                     if (AdamModbus.Connected && IsConnected && countReadCoilStatusFalse > 10)
                     {
-                        AdamModbus.Disconnect();
-                        Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :Принудительная переинициализация ADAM (завис) " + IpAddress);
+                        try
+                        {
+                            AdamModbus.Disconnect();
+                            Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :Принудительная переинициализация ADAM (завис) " + IpAddress);
+                        }
+                        catch (Exception ex)
+                        {
+                            Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :AdamModbus.Disconnect() выпал в ошибку " + IpAddress);
+                            Common.Console.WriteLine(ex);
+                        }
                     }
                     countReadCoilStatusFalse = 0;
                     IsConnected = false;
@@ -289,6 +347,11 @@ namespace GammaService
             {
                 MainTimer?.Dispose();
             }
+            if (myServiceHost != null && (myServiceHost as ICommunicationObject).State == CommunicationState.Opened)
+            {
+                myServiceHost.Close();
+                myServiceHost = null;
+            }
         }
 
         private ConcurrentQueue<Guid> FaultIds { get; } = new ConcurrentQueue<Guid>();
@@ -370,25 +433,30 @@ namespace GammaService
                         Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
                         break;
                 }
-
             }
         }
+
+        private DateTime _lastPrintingLabel = DateTime.Now;
 
         private void PrintLabelId1()
         {
             //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
-            var docId = Db.CreateNewPallet(PlaceId);
-            if (docId == null) 
+            TimeSpan span = DateTime.Now - _lastPrintingLabel;
+            if (span.TotalMilliseconds > 199)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
-                return;
+                var docId = Db.CreateNewPallet(PlaceId);
+                if (docId == null)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    return;
+                }
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                _lastPrintingLabel = DateTime.Now;
+                if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2)) return;
+                FaultIds.Enqueue((Guid)docId);
+                if (!FaultPrintTaskIsRunning)
+                    Task.Factory.StartNew(PrintFromQueue);
             }
-            Common.Console.WriteLine(DateTime.Now + " :"+ PrinterName + " Создана новая паллета: " + docId.ToString());
-            if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2)) return;
-            FaultIds.Enqueue((Guid)docId);
-            if (!FaultPrintTaskIsRunning)
-                Task.Factory.StartNew(PrintFromQueue);
-            
         }
 
         private void PrintLabelId3()

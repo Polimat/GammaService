@@ -50,6 +50,12 @@ namespace GammaService
         public virtual DbSet<RemotePrinterLabels> RemotePrinterLabels { get; set; }
         public virtual DbSet<LocalSettings> LocalSettings { get; set; }
         public virtual DbSet<ProductionTaskConverting> ProductionTaskConverting { get; set; }
+        public virtual DbSet<Departments> Departments { get; set; }
+        public virtual DbSet<LogEvents> LogEvents { get; set; }
+        public virtual DbSet<Devices> Devices { get; set; }
+        public virtual DbSet<EventKinds> EventKinds { get; set; }
+        public virtual DbSet<EventStates> EventStates { get; set; }
+        public virtual DbSet<Users> Users { get; set; }
     
         public virtual ObjectResult<Nullable<System.Guid>> GetActiveSourceSpools(Nullable<int> placeID)
         {

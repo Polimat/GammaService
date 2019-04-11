@@ -30,6 +30,7 @@ namespace GammaService
         public bool IsActive { get; set; }
         public string PrintName { get; set; }
         public string PackageLabelPath { get; set; }
+        public Nullable<bool> C1CDeleted { get; set; }
     
         public virtual C1CMeasureUnits C1CMeasureUnits { get; set; }
         public virtual C1CMeasureUnits C1CMeasureUnitsPallet { get; set; }

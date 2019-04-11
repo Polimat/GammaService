@@ -12,18 +12,20 @@ namespace GammaService
     using System;
     using System.Collections.Generic;
     
-    public partial class RemotePrinterLabels
+    public partial class EventStates
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public RemotePrinterLabels()
+        public EventStates()
         {
-            this.RemotePrinters = new HashSet<RemotePrinters>();
+            this.LogEvents = new HashSet<LogEvents>();
         }
     
-        public int RemotePrinterLabelID { get; set; }
-        public string LabelName { get; set; }
+        public int EventStateID { get; set; }
+        public string Name { get; set; }
+        public bool IsVisible { get; set; }
+        public Nullable<bool> EventIsReadOnly { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RemotePrinters> RemotePrinters { get; set; }
+        public virtual ICollection<LogEvents> LogEvents { get; set; }
     }
 }

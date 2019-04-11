@@ -92,6 +92,12 @@
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="DB.cs" />
+    <Compile Include="Departments.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Devices.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="DocProduction.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
@@ -105,6 +111,12 @@
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="DocWithdrawalProducts.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventKinds.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventStates.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="GammaEntities.Context.cs">
@@ -130,6 +142,9 @@
     </Compile>
     <Compile Include="Interfaces\IPrinterService.cs" />
     <Compile Include="LocalSettings.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="LogEvents.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="ModbusDevice.cs" />
@@ -173,6 +188,9 @@
     </Compile>
     <Compile Include="Services\PrinterService.cs" />
     <Compile Include="Templates.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Users.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
   </ItemGroup>

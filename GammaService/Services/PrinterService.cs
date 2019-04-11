@@ -4,9 +4,14 @@ using System.Linq;
 using GammaService.Common;
 using GammaService.Interfaces;
 using System.Drawing;
+using System.ServiceModel;
+using System.Net;
+using System.Net.Mail;
 
 namespace GammaService.Services
 {
+    //[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall,
+    //             ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class PrinterService : IPrinterService
     {
         public bool PrintPallet(Guid productId)
@@ -292,6 +297,97 @@ namespace GammaService.Services
                 return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
             }
             return new Tuple<bool, string>(true, "");
+        }
+
+        public bool SendMessageNewEvent (Guid eventID)
+        {
+            try
+            {
+                using (var gammaBase = new GammaEntities())
+                {
+                    if (gammaBase.Departments.First(p => p.LogEvents.Any(pt => pt.EventID == eventID))
+					        .Email != String.Empty)
+				    {
+                        var mailTo = gammaBase.Departments
+                            .FirstOrDefault(p => p.LogEvents.Any(pt => pt.EventID == eventID))
+                            .Email;
+                        var logEvent = gammaBase.LogEvents
+						    .FirstOrDefault(c => c.EventID == eventID);
+                        var parentEvent = gammaBase.LogEvents
+                            .FirstOrDefault(c => c.EventID == logEvent.ParentEventID);
+                        if (mailTo == null)
+					    {
+						    return false;
+					    }
+                        string subject = "Новое задание " +logEvent.Number + " от " + logEvent.Date;
+                        string message = subject;
+                        if (parentEvent != null)
+                        {
+                            message = message + Environment.NewLine + Environment.NewLine +
+                                "Автор: " + parentEvent.Users.Name + "("+parentEvent.PrintName +")" + Environment.NewLine +
+                                "Вид: " + parentEvent.EventKinds.Name + Environment.NewLine +
+                                "Обьект: " + parentEvent.Places.Name + Environment.NewLine +
+                                "Узел: " + parentEvent.Devices.Name + Environment.NewLine +
+                                "Описание: " + parentEvent.Description + Environment.NewLine;
+                        }
+                        message = message + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + "Требуется зайти в Гамму и открыть задание в Журнале заявок.";
+                        return SendMail(@"192.168.0.220", @"service_ASU_mailer@sgbi.ru", @"89e2#bfKw2", mailTo, "Рассылка: " + subject, message, null);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Common.Console.WriteLine(DateTime.Now + " :Ошибка при отправке сообщения по событию " + eventID.ToString());
+                Common.Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Отправка письма на почтовый ящик C# mail send
+        /// </summary>
+        /// <param name="smtpServer">Имя SMTP-сервера</param>
+        /// <param name="from">Адрес отправителя</param>
+        /// <param name="password">пароль к почтовому ящику отправителя</param>
+        /// <param name="mailto">Адрес получателя</param>
+        /// <param name="caption">Тема письма</param>
+        /// <param name="message">Сообщение</param>
+        /// <param name="attachFile">Присоединенный файл</param>
+        private static bool SendMail(string smtpServer, string from, string password,
+        string mailto, string caption, string message, string attachFile = null)
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(from);
+                mail.To.Add(new MailAddress(mailto));
+                mail.Subject = caption;
+                mail.Body = message;
+                if (!string.IsNullOrEmpty(attachFile))
+                    mail.Attachments.Add(new Attachment(attachFile));
+                SmtpClient client = new SmtpClient();
+                client.Host = smtpServer;
+                //client.Port = 465;// 587;
+                client.EnableSsl = false;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(from, password);//(from.Split('@')[0], password);
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.Send(mail);
+                mail.Dispose();
+                return true;
+            }
+            catch (Exception e)
+            {
+                //throw new Exception("Mail.Send: " + e.Message);
+                Common.Console.WriteLine(DateTime.Now + " :Ошибка при отправке сообщения: " + mailto + ": " + message);
+                Common.Console.WriteLine(e);
+                return false;
+            }
         }
     }
 }

@@ -33,5 +33,6 @@ namespace GammaService
         public virtual DocProduction DocProduction { get; set; }
         public virtual DocWithdrawal DocWithdrawal { get; set; }
         public virtual Places Places { get; set; }
+        public virtual Users Users { get; set; }
     }
 }

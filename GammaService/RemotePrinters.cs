@@ -29,5 +29,6 @@ namespace GammaService
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PlaceRemotePrinters> PlaceRemotePrinters { get; set; }
+        public virtual RemotePrinterLabels RemotePrinterLabels { get; set; }
     }
 }

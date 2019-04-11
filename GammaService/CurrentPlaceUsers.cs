@@ -20,5 +20,6 @@ namespace GammaService
         public string PrintName { get; set; }
     
         public virtual Places Places { get; set; }
+        public virtual Users Users { get; set; }
     }
 }
