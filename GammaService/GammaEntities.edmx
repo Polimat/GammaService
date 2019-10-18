@@ -156,6 +156,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="BranchID" Type="int" Nullable="false" />
           <Property Name="MailServiceAddress" Type="varchar" MaxLength="250" />
           <Property Name="LabelPath" Type="varchar" MaxLength="500" />
+          <Property Name="GammaServiceAddress" Type="varchar" MaxLength="250" />
         </EntityType>
         <EntityType Name="LogEvents">
           <Key>
@@ -197,6 +198,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="ModbusDeviceID" Type="int" Nullable="false" />
           <Property Name="RemotePrinterID" Type="int" Nullable="false" />
           <Property Name="IsEnabled" Type="bit" />
+          <Property Name="IsDefaultPrinterForGamma" Type="bit" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinterSettings">
           <Key>
@@ -240,6 +242,9 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="GroupPackLabelPNG" Type="varbinary(max)" />
           <Property Name="GroupPackLabelMD5" Type="varchar" MaxLength="32" />
           <Property Name="GroupPackLabelZPL" Type="varchar(max)" />
+          <Property Name="TransportPackLabelPNG" Type="varbinary(max)" />
+          <Property Name="TransportPackLabelMD5" Type="varchar" MaxLength="32" />
+          <Property Name="TransportPackLabelZPL" Type="varchar(max)" />
         </EntityType>
         <EntityType Name="ProductionTasks">
           <Key>
@@ -261,7 +266,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="ProductItemID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="ProductID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="1CNomenclatureID" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="1CCharacteristicID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="1CCharacteristicID" Type="uniqueidentifier" />
           <Property Name="Quantity" Type="int" />
         </EntityType>
         <EntityType Name="ProductPallets">
@@ -742,7 +747,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_ProductItems_1CCharacteristics">
-          <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="1" />
+          <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="0..1" />
           <End Role="ProductItems" Type="Self.ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="1CCharacteristics">
@@ -850,7 +855,8 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <DefiningQuery>SELECT 
     [LocalSettings].[BranchID] AS [BranchID], 
     [LocalSettings].[MailServiceAddress] AS [MailServiceAddress], 
-    [LocalSettings].[LabelPath] AS [LabelPath]
+    [LocalSettings].[LabelPath] AS [LabelPath], 
+    [LocalSettings].[GammaServiceAddress] AS [GammaServiceAddress]
     FROM [dbo].[LocalSettings] AS [LocalSettings]</DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_1CCharacteristics_1CMeasureUnits" Association="Self.FK_1CCharacteristics_1CMeasureUnits">
@@ -1351,7 +1357,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="ProductItemID" Type="Guid" Nullable="false" />
           <Property Name="ProductID" Type="Guid" Nullable="false" />
           <Property Name="C1CNomenclatureID" Type="Guid" Nullable="false" />
-          <Property Name="C1CCharacteristicID" Type="Guid" Nullable="false" />
+          <Property Name="C1CCharacteristicID" Type="Guid" />
           <Property Name="Quantity" Type="Int32" />
           <NavigationProperty Name="ProductPallets" Relationship="GammaNewModel.FK_ProductItems_ProductPallets" FromRole="ProductItems" ToRole="ProductPallets" />
           <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="ProductItems" ToRole="C1CCharacteristics" />
@@ -1593,7 +1599,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_ProductItems_1CCharacteristics">
-          <End Type="GammaNewModel.C1CCharacteristics" Role="C1CCharacteristics" Multiplicity="1" />
+          <End Type="GammaNewModel.C1CCharacteristics" Role="C1CCharacteristics" Multiplicity="0..1" />
           <End Type="GammaNewModel.ProductItems" Role="ProductItems" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="C1CCharacteristics">
@@ -1734,6 +1740,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="RemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_RemotePrinters" FromRole="PlaceRemotePrinters" ToRole="RemotePrinters" />
           <NavigationProperty Name="PlaceRemotePrinterSettings" Relationship="GammaNewModel.FK_PlaceRemotePrinterSettings_PlaceRemotePrinters" FromRole="PlaceRemotePrinters" ToRole="PlaceRemotePrinterSettings" />
           <Property Name="IsEnabled" Type="Boolean" />
+          <Property Name="IsDefaultPrinterForGamma" Type="Boolean" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinterSettings">
           <Key>
@@ -1820,6 +1827,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="BranchID" Type="Int32" Nullable="false" />
           <Property Name="MailServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="LabelPath" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="GammaServiceAddress" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="ProductionTaskConverting">
           <Key>
@@ -1832,6 +1840,9 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="GroupPackLabelMD5" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTaskConverting_ProductionTasks" FromRole="ProductionTaskConverting" ToRole="ProductionTasks" />
           <Property Name="GroupPackLabelZPL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="TransportPackLabelPNG" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="TransportPackLabelMD5" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="TransportPackLabelZPL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_ProductionTaskConverting_ProductionTasks">
           <End Type="GammaNewModel.ProductionTasks" Role="ProductionTasks" Multiplicity="1">
@@ -2306,6 +2317,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="PlaceRemotePrinters">
             <EntityTypeMapping TypeName="GammaNewModel.PlaceRemotePrinters">
               <MappingFragment StoreEntitySet="PlaceRemotePrinters">
+                <ScalarProperty Name="IsDefaultPrinterForGamma" ColumnName="IsDefaultPrinterForGamma" />
                 <ScalarProperty Name="IsEnabled" ColumnName="IsEnabled" />
                 <ScalarProperty Name="PlaceRemotePrinterID" ColumnName="PlaceRemotePrinterID" />
                 <ScalarProperty Name="RemotePrinterID" ColumnName="RemotePrinterID" />
@@ -2334,6 +2346,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="LocalSettings">
             <EntityTypeMapping TypeName="GammaNewModel.LocalSettings">
               <MappingFragment StoreEntitySet="LocalSettings">
+                <ScalarProperty Name="GammaServiceAddress" ColumnName="GammaServiceAddress" />
                 <ScalarProperty Name="LabelPath" ColumnName="LabelPath" />
                 <ScalarProperty Name="MailServiceAddress" ColumnName="MailServiceAddress" />
                 <ScalarProperty Name="BranchID" ColumnName="BranchID" />
@@ -2349,6 +2362,9 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
                 <ScalarProperty Name="RobotProductDescription" ColumnName="RobotProductDescription" />
                 <ScalarProperty Name="RobotProductNumber" ColumnName="RobotProductNumber" />
                 <ScalarProperty Name="ProductionTaskID" ColumnName="ProductionTaskID" />
+                <ScalarProperty Name="TransportPackLabelZPL" ColumnName="TransportPackLabelZPL" />
+                <ScalarProperty Name="TransportPackLabelMD5" ColumnName="TransportPackLabelMD5" />
+                <ScalarProperty Name="TransportPackLabelPNG" ColumnName="TransportPackLabelPNG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

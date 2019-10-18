@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using Ghostscript.NET;
 using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace GammaService.Common
 {
@@ -117,14 +119,76 @@ namespace GammaService.Common
             }
         }
 
-        public static MemoryStream PdfProcessingToPng (string SourcefilePath)
+        /// <summary>  
+        /// the image remains the same size, and it is placed in the middle of the new canvas  
+        /// </summary>  
+        /// <param name="image">image to put on canvas</param>  
+        /// <param name="width">canvas width</param>  
+        /// <param name="height">canvas height</param>  
+        /// <param name="canvasColor">canvas color</param>  
+        /// <returns></returns>  
+        public static Image PutOnCanvas(Image image, int width, int height, Color canvasColor)
+        {
+            var res = new Bitmap(width, height);
+            using (var g = Graphics.FromImage(res))
+            {
+                g.Clear(canvasColor);
+                g.DrawImageUnscaled(image, 0, 0, image.Width, image.Height);
+                //var x = (width - image.Width) / 2;
+                //var y = (height - image.Height) / 2;
+                //g.DrawImageUnscaled(image, x, y, image.Width, image.Height);
+            }
+
+            return res;
+        }  
+        
+        /// <summary>  
+           /// resize an image and maintain aspect ratio  
+           /// </summary>  
+           /// <param name="image">image to resize</param>  
+           /// <param name="newWidth">desired width</param>  
+           /// <param name="maxHeight">max height</param>  
+           /// <param name="onlyResizeIfWider">if image width is smaller than newWidth use image width</param>  
+           /// <returns>resized image</returns>  
+        public static Image ImageResize(Image image, int newWidth, int maxHeight, bool onlyResizeIfWider, bool resizeProportional = true)
+        {
+            if (onlyResizeIfWider && image.Width <= newWidth) newWidth = image.Width;
+
+            var newHeight = resizeProportional ? image.Height * newWidth / image.Width : maxHeight;
+            if (newHeight > maxHeight)
+            {
+                // Resize with height instead  
+                newWidth = image.Width * maxHeight / image.Height;
+                newHeight = maxHeight;
+            }
+
+            var res = new Bitmap(newWidth, newHeight);
+
+            using (var graphic = Graphics.FromImage(res))
+            {
+                graphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphic.SmoothingMode = SmoothingMode.HighQuality;
+                graphic.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphic.CompositingQuality = CompositingQuality.HighQuality;
+                graphic.DrawImage(image, 0, 0, newWidth, newHeight);
+            }
+
+            return res;
+        }
+
+        public static MemoryStream PdfProcessingToPng(string sourceFilePath)
+        {
+            return PdfProcessingToPng(sourceFilePath, false);
+        }
+
+        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool scaling)
         {
             FileStream pdfPathStream = null;
             MemoryStream mem = null;
             GhostscriptRasterizer rasterizer = null;
             try
             {
-                pdfPathStream = new FileStream(SourcefilePath, FileMode.Open, FileAccess.Read);
+                pdfPathStream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read);
                 rasterizer = CreateRasterizer(pdfPathStream);
                 mem = new MemoryStream();
 
@@ -133,7 +197,9 @@ namespace GammaService.Common
                     //string pageFilePath = Path.Combine(outputPath, "Page-" + pageNumber.ToString() + ".png");
                     using (var img = rasterizer.GetPage(Dpi, Dpi, pageNumber))
                     {
-                        img.Save(mem, ImageFormat.Png);
+                        var _imgRect = ImageResize(img, (int)(img.Width * (scaling ? 0.9 : 1)), img.Height, true, false);
+                        var _imgSave = PutOnCanvas(_imgRect, img.Width, img.Height, Color.White);
+                        _imgSave.Save(mem, ImageFormat.Png);
                     }
                 }
                 rasterizer.Close();

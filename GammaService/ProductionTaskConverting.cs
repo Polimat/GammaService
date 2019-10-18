@@ -20,7 +20,10 @@ namespace GammaService
         public byte[] GroupPackLabelPNG { get; set; }
         public string GroupPackLabelMD5 { get; set; }
         public string GroupPackLabelZPL { get; set; }
-    
+        public byte[] TransportPackLabelPNG { get; set; }
+        public string TransportPackLabelMD5 { get; set; }
+        public string TransportPackLabelZPL { get; set; }
+
         public virtual ProductionTasks ProductionTasks { get; set; }
     }
 }

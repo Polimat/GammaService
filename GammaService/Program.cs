@@ -146,7 +146,7 @@ namespace GammaService
                     var mDevice = new ModbusDevice((DeviceType)device.ModbusDevices.ModbusDeviceTypeID,
                         device.ModbusDevices.IPAddress, device.ModbusDevices.Name, device.PlaceID, device.RemotePrinters.PrinterName, device.RemotePrinters.RemotePrinterLabelID,
                         //(int)device.SignalChannelNumber, device.ConfirmChannelNumber, device.ModbusDevices.TimerTick));
-                        device.PlaceRemotePrinterSettings.ToDictionary(p => p.SettingName, p => p.SettingValue), device.ModbusDevices.TimerTick, device.RemotePrinters.IpAdress, device.RemotePrinters.Port, device.ModbusDevices.ServiceAddress);
+                        device.PlaceRemotePrinterSettings.ToDictionary(p => p.SettingName, p => p.SettingValue), device.ModbusDevices.TimerTick, device.RemotePrinters.IpAdress, device.RemotePrinters.Port, device.ModbusDevices.ServiceAddress, device.IsDefaultPrinterForGamma ?? false);// +"/"+ device.RemotePrinters.PrinterName);
                     mDevice.OnDIDataReceived += mDevice.OnModbusInputDataReceived;
                     modbuseDevices.Add(mDevice);
                 }

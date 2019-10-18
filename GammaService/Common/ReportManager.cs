@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using FastReport;
+using System.Drawing;
 
 namespace GammaService.Common
 {
@@ -13,7 +14,7 @@ namespace GammaService.Common
 			ReportSettings.ReportSettings.ShowProgress = false;
 		}
 
-		private static void PrintReport(Guid reportid, string printerName, Guid? paramId = null, int numCopies = 1)
+		private static void PrintReport(Guid reportid, string printerName, Guid? paramId = null, int numCopies = 1, Image paramPNG = null)
 		{
 			using (var report = new Report())
 			{
@@ -32,7 +33,10 @@ namespace GammaService.Common
 							if (paramId != null)
 								report.SetParameterValue("ParamID",
 									paramId);
-							report.Dictionary.Connections[0].ConnectionString =
+                            if (paramPNG != null)
+                                report.SetParameterValue("ParamPNG",
+                                    paramPNG);
+                            report.Dictionary.Connections[0].ConnectionString =
 								gammaBase.Database.Connection.ConnectionString;
 							report.PrintSettings.ShowDialog = false;
 							report.PrintSettings.Copies = numCopies;
@@ -54,8 +58,9 @@ namespace GammaService.Common
 			}
 		}
 
+
 		public static bool PrintReport(string reportName, string printerName, string reportFolder = null,
-			Guid? paramId = null, int numCopies = 1)
+			Guid? paramId = null, int numCopies = 1, Image paramPNG = null)
 		{
 			try
 			{
@@ -66,7 +71,7 @@ namespace GammaService.Common
 						.Select(r => r.ReportID)
 						.ToList();
 					if (reports.Count == 1)
-						PrintReport(reports[0], printerName, paramId, numCopies);
+						PrintReport(reports[0], printerName, paramId, numCopies, paramPNG);
 				}
 			}
 			catch (Exception ex)
@@ -78,10 +83,10 @@ namespace GammaService.Common
 			return true;
 		}
 
-		/// <summary>
-		///     Глобальные настройки FastReport
-		/// </summary>
-		private static readonly EnvironmentSettings ReportSettings = new EnvironmentSettings();
+        /// <summary>
+        ///     Глобальные настройки FastReport
+        /// </summary>
+        private static readonly EnvironmentSettings ReportSettings = new EnvironmentSettings();
 
 		private static readonly object FastReportLock = new object();
 	}

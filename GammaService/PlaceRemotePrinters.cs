@@ -25,6 +25,7 @@ namespace GammaService
         public int RemotePrinterID { get; set; }
         public int PlaceRemotePrinterID { get; set; }
         public Nullable<bool> IsEnabled { get; set; }
+        public Nullable<bool> IsDefaultPrinterForGamma { get; set; }
     
         public virtual ModbusDevices ModbusDevices { get; set; }
         public virtual Places Places { get; set; }

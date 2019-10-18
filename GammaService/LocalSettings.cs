@@ -17,5 +17,6 @@ namespace GammaService
         public int BranchID { get; set; }
         public string MailServiceAddress { get; set; }
         public string LabelPath { get; set; }
+        public string GammaServiceAddress { get; set; }
     }
 }

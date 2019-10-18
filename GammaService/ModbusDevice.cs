@@ -19,7 +19,7 @@ namespace GammaService
 {
     public class ModbusDevice
     {
-        public ModbusDevice(DeviceType deviceType, string ipAddress, string modbusName, int placeId, string printerName, int remotePrinterLabelId, Dictionary<string,string> placeRemotePrinterSettings, int timerTickTime, string remotePrinterIpAdress, int? remotePrinterPort, string serviceAddress)
+        public ModbusDevice(DeviceType deviceType, string ipAddress, string modbusName, int placeId, string printerName, int remotePrinterLabelId, Dictionary<string,string> placeRemotePrinterSettings, int timerTickTime, string remotePrinterIpAdress, int? remotePrinterPort, string serviceAddress, bool isDefaultPrinterForGamma)
         {
             /*
             //myServiceHost = new ServiceHost(typeof(PrinterService), new Uri(serviceAddress));
@@ -70,6 +70,7 @@ namespace GammaService
             ModbusName = modbusName;
             PrinterName = printerName;
             PlaceId = placeId;
+            IsDefaultPrinterForGamma = isDefaultPrinterForGamma;
             RemotePrinterLabelId = remotePrinterLabelId;
             RemotePrinterIpAdress = remotePrinterIpAdress;
             RemotePrinterPort = remotePrinterPort;
@@ -77,6 +78,7 @@ namespace GammaService
             //ConfirmChannelNumber = confirmChannelNumber;
             PlaceRemotePrinterSettings = placeRemotePrinterSettings;
             ServiceAddress = serviceAddress;
+            //ServiceAddress = ServiceAddress + "\" + printerName;
             string value;
             PlaceRemotePrinterSettings.TryGetValue("SignalChannelNumber", out value);
             if (value != null)
@@ -94,6 +96,10 @@ namespace GammaService
             PlaceRemotePrinterSettings.TryGetValue("ResetErrorChannelNumber", out value);
             if (value != null)
                 ResetErrorChannelNumber = Convert.ToInt32(value);
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("ReprintChannelNumber", out value);
+            if (value != null)
+                ReprintChannelNumber = Convert.ToInt32(value);
             InitializeDevice(DeviceType, IpAddress, ModbusName);
             //PackageLabelPath = LoadPackageLabelPath(PlaceId, RemotePrinterLabelId);
             LoadPackageLabelPNG(PlaceId, RemotePrinterLabelId);
@@ -114,7 +120,20 @@ namespace GammaService
 
         public int PlaceId { get; set; }
 
-        public byte[] GroupPackageLabelPNG { get; set; }
+        public bool IsDefaultPrinterForGamma { get; private set; }
+
+        //public byte[] LabelPNG { get; set; }
+        private byte[] _labelPNG = null;
+
+        public byte[] LabelPNG
+        {
+            get { return _labelPNG; }
+            set
+            {
+                _labelPNG = value;
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :LabelPNG Обновлен: " + LabelPNG.Length.ToString());
+            }
+        }
 
         public int RemotePrinterLabelId { get; set; }
 
@@ -196,6 +215,11 @@ namespace GammaService
         /// Номер входа с сигналом "Сбросить ошибку"
         /// </summary>
         private int? ResetErrorChannelNumber { get; set; }
+
+        /// <summary>
+        /// Номер входа с сигналом "Перепечатать"
+        /// </summary>
+        private int? ReprintChannelNumber { get; set; }
 
         Dictionary<string, string> PlaceRemotePrinterSettings { get; set; }
 
@@ -429,6 +453,15 @@ namespace GammaService
                     case 3:
                         PrintLabelId3();
                         break;
+                    case 4:
+                        PrintLabelId4();
+                        break;
+                    case 5:
+                        PrintLabelId5();
+                        break;
+                    case 6:
+                        PrintLabelId6();
+                        break;
                     default:
                         Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
                         break;
@@ -455,7 +488,93 @@ namespace GammaService
                 if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 2)) return;
                 FaultIds.Enqueue((Guid)docId);
                 if (!FaultPrintTaskIsRunning)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " PrintReport из очереди печати");
                     Task.Factory.StartNew(PrintFromQueue);
+                }
+            }
+        }
+
+        private void PrintLabelId6()
+        {
+            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            TimeSpan span = DateTime.Now - _lastPrintingLabel;
+            if (span.TotalMilliseconds > 199)
+            {
+                var docId = Db.CreateNewPallet(PlaceId);
+                if (docId == null)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    return;
+                }
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                _lastPrintingLabel = DateTime.Now;
+                if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, 1)) return;
+                FaultIds.Enqueue((Guid)docId);
+                if (!FaultPrintTaskIsRunning)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " PrintReport из очереди печати");
+                    Task.Factory.StartNew(PrintFromQueue);
+                }
+            }
+        }
+
+        private void PrintLabelId5()
+        {
+            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            TimeSpan span = DateTime.Now - _lastPrintingLabel;
+            if (span.TotalMilliseconds > 199)
+            {
+                var docId = Db.CreateNewPallet(PlaceId);
+                if (docId == null)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    return;
+                }
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                _lastPrintingLabel = DateTime.Now;
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " LabelPNG: " + LabelPNG.Length.ToString());
+                if (LabelPNG != null)
+                {
+                    using (Image image = Image.FromStream(new MemoryStream(LabelPNG)))
+                    {
+                        if (ReportManager.PrintReport("Амбалаж новый", PrinterName, "Pallet", docId, 2, image)) return;
+                        FaultIds.Enqueue((Guid)docId);
+                        if (!FaultPrintTaskIsRunning)
+                            Task.Factory.StartNew(PrintFromQueue);
+                    };
+                }
+                else
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
+            }
+        }
+
+        private void PrintLabelId4()
+        {
+            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            TimeSpan span = DateTime.Now - _lastPrintingLabel;
+            if (span.TotalMilliseconds > 199)
+            {
+                var docId = Db.CreateNewPallet(PlaceId);
+                if (docId == null)
+                {
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    return;
+                }
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                _lastPrintingLabel = DateTime.Now;
+                //PrintLabelZPL(); 
+                if (LabelPNG != null)
+                {
+                    using (Image image = Image.FromStream(new MemoryStream(LabelPNG)))
+                    {
+                        //image.Save(@"D:\testpng.png", System.Drawing.Imaging.ImageFormat.Png);
+                        ReportManager.PrintReport("Амбалаж новый", PrinterName, "Pallet", docId, 2, image);
+                    };
+                }
+                else
+                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
+
             }
         }
 
@@ -587,6 +706,46 @@ namespace GammaService
             }
         }
 
+        public void PrintLabelWithBarCodeZPL(string barCode)
+        {
+            //isPrinting = true;
+            string printImage = "^XA^FO0,0^IME:LABEL.PNG^FS^XZ";
+            if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, printImage))
+            {
+                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                IsErrorPrinting = true;
+                //isPrinting = false;
+                return;
+            }
+            else
+            {
+                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                IsErrorPrinting = false;
+                //isPrinting = false;
+            }
+            /*
+            try
+            {
+                // Open connection
+                System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient();
+                client.Connect(PrinterName, 9100);
+
+                // Write ZPL String to connection
+                System.IO.StreamWriter writer = new System.IO.StreamWriter(client.GetStream(), Encoding.UTF8);
+                writer.Write(printImage);
+                writer.Flush();
+                // Close Connection
+                writer.Close();
+                client.Close();
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+            }
+            catch (Exception ex)
+            {
+                // Catch Exception
+                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+            }*/
+        }
+
         public void PrintLabelZPL()
         {
             //isPrinting = true;
@@ -647,14 +806,14 @@ namespace GammaService
 
         public void PrintLabelPNG()
         {
-            if (GroupPackageLabelPNG == null)
+            if (LabelPNG == null)
             {
                 Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
                 //return false;
             }
             if (RemotePrinterLabelId == 3)
             {
-                PdfPrint.PrintPNGDocument(GroupPackageLabelPNG, PrinterName);
+                PdfPrint.PrintPNGDocument(LabelPNG, PrinterName);
             }
         }
 
@@ -662,10 +821,10 @@ namespace GammaService
         {
             try
             {
-                if (GroupPackageLabelPNG != null)
+                if (LabelPNG != null)
                 {
                     //Load the image from the file
-                    System.Drawing.Image img = System.Drawing.Image.FromStream(new MemoryStream(GroupPackageLabelPNG));
+                    System.Drawing.Image img = System.Drawing.Image.FromStream(new MemoryStream(LabelPNG));
 
                     //Adjust the size of the image to the page to print the full image without loosing any part of it
                     Rectangle m = e.MarginBounds;
@@ -759,8 +918,8 @@ namespace GammaService
             {
                 using (var gammaBase = new GammaEntities())
                 {
-                    if ((remotePrinterLabelId == 3) && (gammaBase.Places.First(p => p.PlaceID == placeId)
-                            .UseApplicator ?? false))
+                    if (((remotePrinterLabelId == 3) && (gammaBase.Places.First(p => p.PlaceID == placeId)
+                            .UseApplicator ?? false)) || remotePrinterLabelId == 4 || remotePrinterLabelId == 5)
                     {
                         var outPathLabels = gammaBase.LocalSettings
                             .FirstOrDefault()
@@ -799,35 +958,51 @@ namespace GammaService
             {
                 using (var gammaBase = new GammaEntities())
                 {
-                    if ((remotePrinterLabelId == 2 || remotePrinterLabelId == 3) && (gammaBase.Places.First(p => p.PlaceID == placeId)
-                            .UseApplicator ?? false))
+                    if (((remotePrinterLabelId == 2 || remotePrinterLabelId == 3) && (gammaBase.Places.First(p => p.PlaceID == placeId)
+                            .UseApplicator ?? false)) ||  remotePrinterLabelId == 4 || remotePrinterLabelId == 5)
                     {
-                        GroupPackageLabelPNG = 
-                            gammaBase.ProductionTaskConverting
-                                .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
-                                .GroupPackLabelPNG;
+                        string LabelZPL;
+                        if (remotePrinterLabelId == 4 || remotePrinterLabelId == 5)
+                        {
+                            LabelPNG =
+                                gammaBase.ProductionTaskConverting
+                                    .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
+                                    .TransportPackLabelPNG;
 
-                        var GroupPackageLabelZPL =
-                            gammaBase.ProductionTaskConverting
-                                .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
-                                .GroupPackLabelZPL;
-                        if (GroupPackageLabelPNG == null)
+                            LabelZPL =
+                                gammaBase.ProductionTaskConverting
+                                    .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
+                                    .TransportPackLabelZPL;
+                        }
+                        else
+                        {
+                            LabelPNG =
+                                gammaBase.ProductionTaskConverting
+                                    .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
+                                    .GroupPackLabelPNG;
+
+                            LabelZPL =
+                                gammaBase.ProductionTaskConverting
+                                    .FirstOrDefault(c => c.ProductionTasks.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId))
+                                    .GroupPackLabelZPL;
+                        }
+                        if (LabelPNG == null)
                         {
                             Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
                             return false;
                         }
-                        if (remotePrinterLabelId == 2)
+                        if (remotePrinterLabelId == 2 || remotePrinterLabelId == 4)
                         {
-                            if (GroupPackageLabelZPL != String.Empty & GroupPackageLabelZPL != null)
+                            if (LabelZPL != String.Empty & LabelZPL != null)
                             {
                                 Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Вариант ZPL!");
-                                SavePngToPrinterZPL(GroupPackageLabelZPL, GroupPackageLabelPNG.Length);
+                                SavePngToPrinterZPL(LabelZPL, LabelPNG.Length);
                             }
                             else
                             {
-                                //PackageLabelPNG = GroupPackageLabelPNG;
+                                //PackageLabelPNG = LabelPNG;
                                 Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Вариант PNG!");
-                                SaveLabelToPrinterPNG(GroupPackageLabelPNG);
+                                SaveLabelToPrinterPNG(LabelPNG);
                             }
                         }
                         return true;
