@@ -20,8 +20,6 @@ namespace GammaService
         public GammaEntities()
             : base("name=GammaEntities")
         {
-            var objectContext = (this as IObjectContextAdapter).ObjectContext;
-            objectContext.CommandTimeout = 30;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

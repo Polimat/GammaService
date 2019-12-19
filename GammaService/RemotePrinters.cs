@@ -26,6 +26,10 @@ namespace GammaService
         public int RemotePrinterLabelID { get; set; }
         public string IpAdress { get; set; }
         public Nullable<int> Port { get; set; }
+        public Nullable<bool> Scaling { get; set; }
+        public Nullable<bool> Rotating { get; set; }
+        public Nullable<int> LabelWidth { get; set; }
+        public Nullable<int> LabelHeight { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PlaceRemotePrinters> PlaceRemotePrinters { get; set; }

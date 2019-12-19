@@ -30,6 +30,7 @@
           <Property Name="PrintName" Type="varchar" MaxLength="8000" />
           <Property Name="PackageLabelPath" Type="nvarchar" MaxLength="1024" />
           <Property Name="1CDeleted" Type="bit" />
+          <Property Name="MeasureUnitIndividualPackage" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="1CMeasureUnits">
           <Key>
@@ -335,6 +336,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="RemotePrinterLabelID" Type="int" Nullable="false" />
           <Property Name="IpAdress" Type="varchar" MaxLength="15" />
           <Property Name="Port" Type="int" />
+          <Property Name="Scaling" Type="bit" />
+          <Property Name="Rotating" Type="bit" />
+          <Property Name="LabelWidth" Type="int" />
+          <Property Name="LabelHeight" Type="int" />
         </EntityType>
         <EntityType Name="Reports">
           <Key>
@@ -1638,6 +1643,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductItems" />
           <Property Name="C1CDeleted" Type="Boolean" />
           <NavigationProperty Name="C1CCharacteristicProperties" Relationship="GammaNewModel.FK_1CCharacteristicProperties_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="C1CCharacteristicProperties" />
+          <Property Name="MeasureUnitIndividualPackage" Type="Guid" />
         </EntityType>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Type="GammaNewModel.C1CMeasureUnits" Role="C1CMeasureUnits" Multiplicity="0..1" />
@@ -1807,6 +1813,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="IpAdress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
           <Property Name="Port" Type="Int32" />
           <NavigationProperty Name="RemotePrinterLabels" Relationship="GammaNewModel.FK_RemotePrinters_RemotePrinterLabels" FromRole="RemotePrinters" ToRole="RemotePrinterLabels" />
+          <Property Name="Scaling" Type="Boolean" />
+          <Property Name="Rotating" Type="Boolean" />
+          <Property Name="LabelWidth" Type="Int32" />
+          <Property Name="LabelHeight" Type="Int32" />
         </EntityType>
         <EntityType Name="PlaceRemotePrinters">
           <Key>
@@ -2401,6 +2411,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="C1CCharacteristics">
             <EntityTypeMapping TypeName="GammaNewModel.C1CCharacteristics">
               <MappingFragment StoreEntitySet="1CCharacteristics">
+                <ScalarProperty Name="MeasureUnitIndividualPackage" ColumnName="MeasureUnitIndividualPackage" />
                 <ScalarProperty Name="C1CDeleted" ColumnName="1CDeleted" />
                 <ScalarProperty Name="PackageLabelPath" ColumnName="PackageLabelPath" />
                 <ScalarProperty Name="PrintName" ColumnName="PrintName" />
@@ -2445,6 +2456,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="RemotePrinters">
             <EntityTypeMapping TypeName="GammaNewModel.RemotePrinters">
               <MappingFragment StoreEntitySet="RemotePrinters">
+                <ScalarProperty Name="LabelHeight" ColumnName="LabelHeight" />
+                <ScalarProperty Name="LabelWidth" ColumnName="LabelWidth" />
+                <ScalarProperty Name="Rotating" ColumnName="Rotating" />
+                <ScalarProperty Name="Scaling" ColumnName="Scaling" />
                 <ScalarProperty Name="Port" ColumnName="Port" />
                 <ScalarProperty Name="IpAdress" ColumnName="IpAdress" />
                 <ScalarProperty Name="RemotePrinterLabelID" ColumnName="RemotePrinterLabelID" />

@@ -150,7 +150,7 @@ namespace GammaService.Common
            /// <param name="maxHeight">max height</param>  
            /// <param name="onlyResizeIfWider">if image width is smaller than newWidth use image width</param>  
            /// <returns>resized image</returns>  
-        public static Image ImageResize(Image image, int newWidth, int maxHeight, bool onlyResizeIfWider, bool resizeProportional = true)
+        public static Image ImageResize(Image image, int newWidth, int maxHeight, bool onlyResizeIfWider, bool resizeProportional = true, bool rotate = false)
         {
             if (onlyResizeIfWider && image.Width <= newWidth) newWidth = image.Width;
 
@@ -161,8 +161,8 @@ namespace GammaService.Common
                 newWidth = image.Width * maxHeight / image.Height;
                 newHeight = maxHeight;
             }
-            var res = new Bitmap(newHeight, newWidth);
-
+            var res = rotate ? new Bitmap(newHeight, newWidth) : new Bitmap(newWidth, newHeight);
+            Common.Console.WriteLine("Bitmap.Width=" + res.Width + " Bitmap.Height=" + res.Height + " rotate=" + rotate);
             using (var graphic = Graphics.FromImage(res))
             {
                 graphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -170,20 +170,25 @@ namespace GammaService.Common
                 graphic.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphic.CompositingQuality = CompositingQuality.HighQuality;
                 //graphic.TranslateTransform(newWidth, 0F);
-                graphic.TranslateTransform(newHeight/2,newWidth/2);
-                graphic.RotateTransform(90.0F);
-                graphic.DrawImage(image, -newWidth / 2, -newHeight/2, newWidth, newHeight);
+                if (rotate)
+                {
+                    graphic.TranslateTransform(newHeight / 2, newWidth / 2);
+                    graphic.RotateTransform(90.0F);
+                    graphic.DrawImage(image, -newWidth / 2, -newHeight / 2, newWidth, newHeight);
+                }
+                else
+                    graphic.DrawImage(image, 0, 0, newWidth, newHeight);
             }
 
             return res;
         }
 
-        public static MemoryStream PdfProcessingToPng(string sourceFilePath)
-        {
-            return PdfProcessingToPng(sourceFilePath, false);
-        }
+        //public static MemoryStream PdfProcessingToPng(string sourceFilePath)
+        //{
+        //    return PdfProcessingToPng(sourceFilePath, false);
+        //}
 
-        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool scaling = false, bool rotate = false)
+        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool rotate = false, bool scaling = false, int? newWidth = null, int? newHeight = null)
         {
             FileStream pdfPathStream = null;
             MemoryStream mem = null;
@@ -200,9 +205,10 @@ namespace GammaService.Common
                     using (var img = rasterizer.GetPage(Dpi, Dpi, pageNumber))
                     {
                         //var _imgRect = ImageResize(img, (int)(img.Width * (scaling ? 0.9 : 1)), img.Height, true, false);
-                        var imgWidth = (scaling ? 1100 : img.Width);
-                        var imgHeight = (scaling ? 700 : img.Height);
-                        var _imgRect = ImageResize(img, imgWidth, imgHeight, false, false);
+                        var imgWidth = (scaling && newWidth != null ? (int)newWidth : img.Width);
+                        var imgHeight = (scaling && newHeight != null ? (int)newHeight : img.Height);
+                        Common.Console.WriteLine("img.Width=" + img.Width + " img.Height=" + img.Height + " scaling=" + scaling + " : imgWidth=" + imgWidth + " imgHeight=" + imgHeight);
+                        var _imgRect = ImageResize(img, imgWidth, imgHeight, false, false, rotate);
                         var _imgSave = rotate ? PutOnCanvas(_imgRect, imgHeight, imgWidth, Color.White) : PutOnCanvas(_imgRect, imgWidth, imgHeight, Color.White);
                         _imgSave.Save(mem, ImageFormat.Png);
                     }

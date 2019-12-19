@@ -32,6 +32,7 @@ namespace GammaService
         public string PrintName { get; set; }
         public string PackageLabelPath { get; set; }
         public Nullable<bool> C1CDeleted { get; set; }
+        public Nullable<System.Guid> MeasureUnitIndividualPackage { get; set; }
     
         public virtual C1CMeasureUnits C1CMeasureUnits { get; set; }
         public virtual C1CMeasureUnits C1CMeasureUnitsPallet { get; set; }
