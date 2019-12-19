@@ -20,6 +20,8 @@ namespace GammaService
         public GammaEntities()
             : base("name=GammaEntities")
         {
+            var objectContext = (this as IObjectContextAdapter).ObjectContext;
+            objectContext.CommandTimeout = 30;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -56,6 +58,8 @@ namespace GammaService
         public virtual DbSet<EventKinds> EventKinds { get; set; }
         public virtual DbSet<EventStates> EventStates { get; set; }
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<C1CCharacteristicProperties> C1CCharacteristicProperties { get; set; }
+        public virtual DbSet<C1CPropertyValues> C1CPropertyValues { get; set; }
     
         public virtual ObjectResult<Nullable<System.Guid>> GetActiveSourceSpools(Nullable<int> placeID)
         {

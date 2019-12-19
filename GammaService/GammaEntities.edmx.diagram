@@ -73,6 +73,10 @@
         <AssociationConnector Association="GammaNewModel.FK_Users_Departments" />
         <AssociationConnector Association="GammaNewModel.FK_Docs_Users" />
         <AssociationConnector Association="GammaNewModel.FK_LogEvents_Users" />
+        <EntityTypeShape EntityType="GammaNewModel.C1CCharacteristicProperties" Width="1.5" PointX="5.25" PointY="17" />
+        <EntityTypeShape EntityType="GammaNewModel.C1CPropertyValues" Width="1.5" PointX="3" PointY="21.5" />
+        <AssociationConnector Association="GammaNewModel.FK_1CCharacteristicProperties_1CCharacteristics" />
+        <AssociationConnector Association="GammaNewModel.FK_1CCharacteristicProperties_1CPropertyValues" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

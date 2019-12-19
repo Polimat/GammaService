@@ -21,8 +21,8 @@ namespace GammaService
             this.Docs = new HashSet<Docs>();
             this.DocWithdrawal = new HashSet<DocWithdrawal>();
             this.ProductionTasks = new HashSet<ProductionTasks>();
-            this.LogEvents = new HashSet<LogEvents>();
             this.PlaceRemotePrinters = new HashSet<PlaceRemotePrinters>();
+            this.LogEvents = new HashSet<LogEvents>();
         }
     
         public int PlaceID { get; set; }
@@ -43,7 +43,11 @@ namespace GammaService
         public Nullable<bool> UseApplicator { get; set; }
         public string ApplicatorLabelPath { get; set; }
         public Nullable<bool> IsRobot { get; set; }
-
+        public bool IsWithdrawalMaterial { get; set; }
+        public int PlaceWithdrawalMaterialTypeID { get; set; }
+        public Nullable<bool> IsEnabledRemainderInDocCloseShift { get; set; }
+        public Nullable<bool> IsEnabledSamplesInDocCloseShift { get; set; }
+    
         public virtual ActiveProductionTasks ActiveProductionTasks { get; set; }
         public virtual CurrentPlaceUsers CurrentPlaceUsers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -54,10 +58,10 @@ namespace GammaService
         public virtual ICollection<DocWithdrawal> DocWithdrawal { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProductionTasks> ProductionTasks { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PlaceRemotePrinters> PlaceRemotePrinters { get; set; }
         public virtual Departments Departments { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LogEvents> LogEvents { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PlaceRemotePrinters> PlaceRemotePrinters { get; set; }
     }
 }

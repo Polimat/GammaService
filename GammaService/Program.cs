@@ -92,7 +92,12 @@ namespace GammaService
                                     Common.Console.WriteLine(printer);
                                 }
                                 break;
-
+                            case ConsoleKey.F7:
+                                foreach (var device in modbuseDevices)
+                                {
+                                    device.InStatus = !device.InStatus;
+                                }
+                                break;
                         }
                     } while (key != ConsoleKey.Escape);
 

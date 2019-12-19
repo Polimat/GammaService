@@ -5,6 +5,17 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="Хранилище GammaNewModel" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="1CCharacteristicProperties">
+          <Key>
+            <PropertyRef Name="1CCharacteristicID" />
+            <PropertyRef Name="1CPropertyID" />
+          </Key>
+          <Property Name="1CCharacteristicID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="1CPropertyID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="1CPropertyValueID" Type="uniqueidentifier" />
+          <Property Name="ValueText" Type="varchar" MaxLength="8000" />
+          <Property Name="ValueNumeric" Type="decimal" Precision="20" Scale="0" />
+        </EntityType>
         <EntityType Name="1CCharacteristics">
           <Key>
             <PropertyRef Name="1CCharacteristicID" />
@@ -30,6 +41,23 @@
           <Property Name="1CCode" Type="varchar" MaxLength="20" />
           <Property Name="Coefficient" Type="decimal" Precision="10" Scale="3" />
           <Property Name="Name" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="1CPropertyValues">
+          <Key>
+            <PropertyRef Name="1CPropertyValueID" />
+          </Key>
+          <Property Name="1CPropertyValueID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="1CCode" Type="varchar" MaxLength="20" />
+          <Property Name="1CPropertyID" Type="uniqueidentifier" />
+          <Property Name="ValueType" Type="tinyint" />
+          <Property Name="Marked" Type="bit" />
+          <Property Name="Folder" Type="bit" />
+          <Property Name="ParentID" Type="uniqueidentifier" />
+          <Property Name="Description" Type="varchar" MaxLength="50" />
+          <Property Name="PrintDescription" Type="ntext" />
+          <Property Name="ValueNumeric" Type="decimal" Precision="20" Scale="5" />
+          <Property Name="SortValue" Type="nvarchar" MaxLength="50" />
+          <Property Name="NotForName" Type="bit" />
         </EntityType>
         <EntityType Name="ActiveProductionTasks">
           <Key>
@@ -231,6 +259,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="UseApplicator" Type="bit" />
           <Property Name="ApplicatorLabelPath" Type="nvarchar" MaxLength="500" />
           <Property Name="IsRobot" Type="bit" />
+          <Property Name="IsWithdrawalMaterial" Type="bit" Nullable="false" />
+          <Property Name="PlaceWithdrawalMaterialTypeID" Type="int" Nullable="false" />
+          <Property Name="IsEnabledRemainderInDocCloseShift" Type="bit" />
+          <Property Name="IsEnabledSamplesInDocCloseShift" Type="bit" />
         </EntityType>
         <EntityType Name="ProductionTaskConverting">
           <Key>
@@ -342,6 +374,30 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Property Name="MobileComputer" Type="bit" />
           <Property Name="DepartmentID" Type="smallint" />
         </EntityType>
+        <Association Name="FK_1CCharacteristicProperties_1CCharacteristics">
+          <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="1" />
+          <End Role="1CCharacteristicProperties" Type="Self.1CCharacteristicProperties" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="1CCharacteristics">
+              <PropertyRef Name="1CCharacteristicID" />
+            </Principal>
+            <Dependent Role="1CCharacteristicProperties">
+              <PropertyRef Name="1CCharacteristicID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_1CCharacteristicProperties_1CPropertyValues">
+          <End Role="1CPropertyValues" Type="Self.1CPropertyValues" Multiplicity="0..1" />
+          <End Role="1CCharacteristicProperties" Type="Self.1CCharacteristicProperties" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="1CPropertyValues">
+              <PropertyRef Name="1CPropertyValueID" />
+            </Principal>
+            <Dependent Role="1CCharacteristicProperties">
+              <PropertyRef Name="1CPropertyValueID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Role="1CMeasureUnits" Type="Self.1CMeasureUnits" Multiplicity="0..1" />
           <End Role="1CCharacteristics" Type="Self.1CCharacteristics" Multiplicity="*" />
@@ -822,8 +878,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <Parameter Name="PlaceID" Type="int" Mode="In" />
         </Function>
         <EntityContainer Name="Хранилище GammaNewModelContainer">
+          <EntitySet Name="1CCharacteristicProperties" EntityType="Self.1CCharacteristicProperties" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="1CCharacteristics" EntityType="Self.1CCharacteristics" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="1CMeasureUnits" EntityType="Self.1CMeasureUnits" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="1CPropertyValues" EntityType="Self.1CPropertyValues" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ActiveProductionTasks" EntityType="Self.ActiveProductionTasks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CurrentPlaceUsers" EntityType="Self.CurrentPlaceUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Departments" EntityType="Self.Departments" Schema="dbo" store:Type="Tables" />
@@ -859,6 +917,14 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
     [LocalSettings].[GammaServiceAddress] AS [GammaServiceAddress]
     FROM [dbo].[LocalSettings] AS [LocalSettings]</DefiningQuery>
           </EntitySet>
+          <AssociationSet Name="FK_1CCharacteristicProperties_1CCharacteristics" Association="Self.FK_1CCharacteristicProperties_1CCharacteristics">
+            <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
+            <End Role="1CCharacteristicProperties" EntitySet="1CCharacteristicProperties" />
+          </AssociationSet>
+          <AssociationSet Name="FK_1CCharacteristicProperties_1CPropertyValues" Association="Self.FK_1CCharacteristicProperties_1CPropertyValues">
+            <End Role="1CPropertyValues" EntitySet="1CPropertyValues" />
+            <End Role="1CCharacteristicProperties" EntitySet="1CCharacteristicProperties" />
+          </AssociationSet>
           <AssociationSet Name="FK_1CCharacteristics_1CMeasureUnits" Association="Self.FK_1CCharacteristics_1CMeasureUnits">
             <End Role="1CMeasureUnits" EntitySet="1CMeasureUnits" />
             <End Role="1CCharacteristics" EntitySet="1CCharacteristics" />
@@ -1251,6 +1317,16 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             <End Role="Users" EntitySet="Users" />
             <End Role="LogEvents" EntitySet="LogEvents" />
           </AssociationSet>
+          <EntitySet Name="C1CCharacteristicProperties" EntityType="GammaNewModel.C1CCharacteristicProperties" />
+          <EntitySet Name="C1CPropertyValues" EntityType="GammaNewModel.C1CPropertyValues" />
+          <AssociationSet Name="FK_1CCharacteristicProperties_1CCharacteristics" Association="GammaNewModel.FK_1CCharacteristicProperties_1CCharacteristics">
+            <End Role="C1CCharacteristics" EntitySet="C1CCharacteristics" />
+            <End Role="C1CCharacteristicProperties" EntitySet="C1CCharacteristicProperties" />
+          </AssociationSet>
+          <AssociationSet Name="FK_1CCharacteristicProperties_1CPropertyValues" Association="GammaNewModel.FK_1CCharacteristicProperties_1CPropertyValues">
+            <End Role="C1CPropertyValues" EntitySet="C1CPropertyValues" />
+            <End Role="C1CCharacteristicProperties" EntitySet="C1CCharacteristicProperties" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="ModbusDevices">
           <Key>
@@ -1561,6 +1637,7 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="ProductionTasks" Relationship="GammaNewModel.FK_ProductionTasks_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductionTasks" />
           <NavigationProperty Name="ProductItems" Relationship="GammaNewModel.FK_ProductItems_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="ProductItems" />
           <Property Name="C1CDeleted" Type="Boolean" />
+          <NavigationProperty Name="C1CCharacteristicProperties" Relationship="GammaNewModel.FK_1CCharacteristicProperties_1CCharacteristics" FromRole="C1CCharacteristics" ToRole="C1CCharacteristicProperties" />
         </EntityType>
         <Association Name="FK_1CCharacteristics_1CMeasureUnits">
           <End Type="GammaNewModel.C1CMeasureUnits" Role="C1CMeasureUnits" Multiplicity="0..1" />
@@ -1641,6 +1718,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <NavigationProperty Name="PlaceRemotePrinters" Relationship="GammaNewModel.FK_PlaceRemotePrinters_Places" FromRole="Places" ToRole="PlaceRemotePrinters" />
           <NavigationProperty Name="Departments" Relationship="GammaNewModel.FK_Places_Departments" FromRole="Places" ToRole="Departments" />
           <NavigationProperty Name="LogEvents" Relationship="GammaNewModel.FK_LogEvents_Places" FromRole="Places" ToRole="LogEvents" />
+          <Property Name="IsWithdrawalMaterial" Type="Boolean" Nullable="false" />
+          <Property Name="PlaceWithdrawalMaterialTypeID" Type="Int32" Nullable="false" />
+          <Property Name="IsEnabledRemainderInDocCloseShift" Type="Boolean" />
+          <Property Name="IsEnabledSamplesInDocCloseShift" Type="Boolean" />
         </EntityType>
         <Association Name="FK_ActiveProductionTasks_Places">
           <End Type="GammaNewModel.Places" Role="Places" Multiplicity="1" />
@@ -2079,6 +2160,61 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="C1CCharacteristicProperties">
+          <Key>
+            <PropertyRef Name="C1CCharacteristicID" />
+            <PropertyRef Name="C1CPropertyID" />
+          </Key>
+          <Property Name="C1CCharacteristicID" Type="Guid" Nullable="false" />
+          <Property Name="C1CPropertyID" Type="Guid" Nullable="false" />
+          <Property Name="C1CPropertyValueID" Type="Guid" />
+          <Property Name="ValueText" Type="String" MaxLength="8000" FixedLength="false" Unicode="false" />
+          <Property Name="ValueNumeric" Type="Decimal" Precision="20" Scale="0" />
+          <NavigationProperty Name="C1CCharacteristics" Relationship="GammaNewModel.FK_1CCharacteristicProperties_1CCharacteristics" FromRole="C1CCharacteristicProperties" ToRole="C1CCharacteristics" />
+          <NavigationProperty Name="C1CPropertyValues" Relationship="GammaNewModel.FK_1CCharacteristicProperties_1CPropertyValues" FromRole="C1CCharacteristicProperties" ToRole="C1CPropertyValues" />
+        </EntityType>
+        <EntityType Name="C1CPropertyValues">
+          <Key>
+            <PropertyRef Name="C1CPropertyValueID" />
+          </Key>
+          <Property Name="C1CPropertyValueID" Type="Guid" Nullable="false" />
+          <Property Name="C1CCode" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="C1CPropertyID" Type="Guid" />
+          <Property Name="ValueType" Type="Byte" />
+          <Property Name="Marked" Type="Boolean" />
+          <Property Name="Folder" Type="Boolean" />
+          <Property Name="ParentID" Type="Guid" />
+          <Property Name="Description" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PrintDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ValueNumeric" Type="Decimal" Precision="20" Scale="5" />
+          <Property Name="SortValue" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NotForName" Type="Boolean" />
+          <NavigationProperty Name="C1CCharacteristicProperties" Relationship="GammaNewModel.FK_1CCharacteristicProperties_1CPropertyValues" FromRole="C1CPropertyValues" ToRole="C1CCharacteristicProperties" />
+        </EntityType>
+        <Association Name="FK_1CCharacteristicProperties_1CCharacteristics">
+          <End Type="GammaNewModel.C1CCharacteristics" Role="C1CCharacteristics" Multiplicity="1" />
+          <End Type="GammaNewModel.C1CCharacteristicProperties" Role="C1CCharacteristicProperties" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="C1CCharacteristics">
+              <PropertyRef Name="C1CCharacteristicID" />
+            </Principal>
+            <Dependent Role="C1CCharacteristicProperties">
+              <PropertyRef Name="C1CCharacteristicID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_1CCharacteristicProperties_1CPropertyValues">
+          <End Type="GammaNewModel.C1CPropertyValues" Role="C1CPropertyValues" Multiplicity="0..1" />
+          <End Type="GammaNewModel.C1CCharacteristicProperties" Role="C1CCharacteristicProperties" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="C1CPropertyValues">
+              <PropertyRef Name="C1CPropertyValueID" />
+            </Principal>
+            <Dependent Role="C1CCharacteristicProperties">
+              <PropertyRef Name="C1CPropertyValueID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2281,6 +2417,10 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
           <EntitySetMapping Name="Places">
             <EntityTypeMapping TypeName="GammaNewModel.Places">
               <MappingFragment StoreEntitySet="Places">
+                <ScalarProperty Name="IsEnabledSamplesInDocCloseShift" ColumnName="IsEnabledSamplesInDocCloseShift" />
+                <ScalarProperty Name="IsEnabledRemainderInDocCloseShift" ColumnName="IsEnabledRemainderInDocCloseShift" />
+                <ScalarProperty Name="PlaceWithdrawalMaterialTypeID" ColumnName="PlaceWithdrawalMaterialTypeID" />
+                <ScalarProperty Name="IsWithdrawalMaterial" ColumnName="IsWithdrawalMaterial" />
                 <ScalarProperty Name="IsRobot" ColumnName="IsRobot" />
                 <ScalarProperty Name="ApplicatorLabelPath" ColumnName="ApplicatorLabelPath" />
                 <ScalarProperty Name="UseApplicator" ColumnName="UseApplicator" />
@@ -2444,6 +2584,35 @@ warning 6002: The table/view 'GammaNew.dbo.LocalSettings' does not have a primar
                 <ScalarProperty Name="Login" ColumnName="Login" />
                 <ScalarProperty Name="RoleID" ColumnName="RoleID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="C1CCharacteristicProperties">
+            <EntityTypeMapping TypeName="GammaNewModel.C1CCharacteristicProperties">
+              <MappingFragment StoreEntitySet="1CCharacteristicProperties">
+                <ScalarProperty Name="ValueNumeric" ColumnName="ValueNumeric" />
+                <ScalarProperty Name="ValueText" ColumnName="ValueText" />
+                <ScalarProperty Name="C1CPropertyValueID" ColumnName="1CPropertyValueID" />
+                <ScalarProperty Name="C1CPropertyID" ColumnName="1CPropertyID" />
+                <ScalarProperty Name="C1CCharacteristicID" ColumnName="1CCharacteristicID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="C1CPropertyValues">
+            <EntityTypeMapping TypeName="GammaNewModel.C1CPropertyValues">
+              <MappingFragment StoreEntitySet="1CPropertyValues">
+                <ScalarProperty Name="NotForName" ColumnName="NotForName" />
+                <ScalarProperty Name="SortValue" ColumnName="SortValue" />
+                <ScalarProperty Name="ValueNumeric" ColumnName="ValueNumeric" />
+                <ScalarProperty Name="PrintDescription" ColumnName="PrintDescription" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ParentID" ColumnName="ParentID" />
+                <ScalarProperty Name="Folder" ColumnName="Folder" />
+                <ScalarProperty Name="Marked" ColumnName="Marked" />
+                <ScalarProperty Name="ValueType" ColumnName="ValueType" />
+                <ScalarProperty Name="C1CPropertyID" ColumnName="1CPropertyID" />
+                <ScalarProperty Name="C1CCode" ColumnName="1CCode" />
+                <ScalarProperty Name="C1CPropertyValueID" ColumnName="1CPropertyValueID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -73,10 +73,16 @@
     <Compile Include="ActiveProductionTasks.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="C1CCharacteristicProperties.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="C1CCharacteristics.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="C1CMeasureUnits.cs">
+      <DependentUpon>GammaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="C1CPropertyValues.cs">
       <DependentUpon>GammaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Common\Console.cs" />

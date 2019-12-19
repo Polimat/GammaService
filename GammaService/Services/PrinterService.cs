@@ -76,7 +76,7 @@ namespace GammaService.Services
                     */
                     //ModbusDevice device = Program.modbuseDevices.FirstOrDefault(p => p.PlaceId == placeId && ((p.RemotePrinterLabelId == remotePrinterLabelId) || (p.RemotePrinterLabelId == (remotePrinterLabelId == 2 ? 3 : remotePrinterLabelId == 3 ? 2 : remotePrinterLabelId))));
                     bool ret = true;
-                    var devices = Program.modbuseDevices.Where(p => p.PlaceId == placeId && p.RemotePrinterLabelId != 1);
+                    var devices = Program.modbuseDevices.Where(p => p.PlaceId == placeId && (p.RemotePrinterLabelId == 2 || p.RemotePrinterLabelId == 4));
                     foreach (var device in devices)
                     {
                         ret = ret & ((bool)device.LoadPackageLabelPNG(placeId, device.RemotePrinterLabelId) && (device.LoadPackageLabelPath(placeId, device.RemotePrinterLabelId) ?? true));
@@ -217,6 +217,7 @@ namespace GammaService.Services
         public Tuple<bool,string> UpdateGroupPackLabelInProductionTask(Guid productionTaskId)
         {
             string Place = String.Empty;
+            string errGr = "";
             try
             {
                 Common.Console.WriteLine(DateTime.Now + " : Начало обновления групповой этикетки на переделе " + Place + " в задании " + productionTaskId.ToString());
@@ -230,8 +231,8 @@ namespace GammaService.Services
                         gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
                             .Select(p => p.GroupPackLabelMD5)
                             .FirstOrDefault();
-                    var GroupPackLabelPath =
-                        gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
+                    var GroupPackLabelPath = 
+                    gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
                     Place =
@@ -249,7 +250,7 @@ namespace GammaService.Services
                         if ((GroupPackageLabelMD5 != GroupPackageLabelMD5New) | (GroupPackageLabelZPL == String.Empty | GroupPackageLabelZPL == null))
                         {
                             Common.Console.WriteLine(DateTime.Now + " :Начала PdfProcessingToPng групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
-                            var GroupPackageLabelPNG = PdfPrint.PdfProcessingToPng(LabelPath + GroupPackLabelPath);
+                            var GroupPackageLabelPNG = PdfPrint.PdfProcessingToPng(LabelPath + GroupPackLabelPath,true);
                             GroupPackageLabelMD5 = GroupPackageLabelMD5New;
                             GroupPackageLabelZPL = string.Empty; ;
                             Common.Console.WriteLine(DateTime.Now + " :Начала TransportPackageLabelZPL(" + GroupPackageLabelPNG.Length.ToString() + ") групповая этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
@@ -299,7 +300,8 @@ namespace GammaService.Services
                     else
                     {
                         Common.Console.WriteLine(DateTime.Now + " :Ошибка: недоступен файл групповой этикетки "+ (LabelPath + GroupPackLabelPath).ToString() + " на переделе " + Place + " в задании " + productionTaskId.ToString());
-                        return new Tuple<bool, string>(false, GroupPackageLabelMD5New ?? "Техническая ошибка: недоступен файл групповой этикетки " + (LabelPath + GroupPackLabelPath).ToString()) ;
+                        errGr = GroupPackageLabelMD5New ?? "Техническая ошибка: недоступен файл групповой этикетки " + (LabelPath + GroupPackLabelPath).ToString();
+                        //return new Tuple<bool, string>(false, GroupPackageLabelMD5New ?? "Техническая ошибка: недоступен файл групповой этикетки " + (LabelPath + GroupPackLabelPath).ToString()) ;
                     }
                 }
             }
@@ -307,11 +309,13 @@ namespace GammaService.Services
             {
                 Common.Console.WriteLine(DateTime.Now + " :Ошибка обновления групповой этикетки в задании " + productionTaskId.ToString() + " на переделе "+ Place);
                 Common.Console.WriteLine(e);
-                return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
+                errGr = "Техническая ошибка обновления групповой этикетки в задании";
+                //return new Tuple<bool, string>(false, "Техническая ошибка обновления групповой этикетки в задании");
             }
             var resultTr = UpdateTransportPackLabelInProductionTask(productionTaskId);
             Common.Console.WriteLine(DateTime.Now + " : Окончание обновления групповой этикетки на переделе " + Place + " в задании " + productionTaskId.ToString());
-            return !(resultTr.Item1) ? resultTr : new Tuple<bool, string>(true, "");
+            //return !(resultTr.Item1) ? resultTr : new Tuple<bool, string>(true, "");
+            return errGr != "" && !(resultTr.Item1) ? new Tuple<bool, string>(false, errGr + ";" + resultTr?.Item2.ToString()) : new Tuple<bool, string>(true, "");
         }
 
         /// <summary>
@@ -335,7 +339,7 @@ namespace GammaService.Services
                         gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
                             .Select(p => p.TransportPackLabelMD5)
                             .FirstOrDefault();
-                    var TransportPackLabelPath =
+                    var TransportPackLabelPath = 
                         gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
@@ -358,7 +362,7 @@ namespace GammaService.Services
                         if ((TransportPackageLabelMD5 != TransportPackageLabelMD5New) )//Транспортную этикетку в ZPL пока не сохраняем - не используем пока нигде, есть проблема по скорости с закоментированным блоком.  | (TransportPackageLabelZPL == String.Empty | TransportPackageLabelZPL == null))
                         {
                             Common.Console.WriteLine(DateTime.Now + " :Начала PdfProcessingToPng транспортная этикетка на переделе " + Place + " в задании " + productionTaskId.ToString());
-                            var TransportPackageLabelPNG = PdfPrint.PdfProcessingToPng(LabelPath + TransportPackLabelPath, true);
+                            var TransportPackageLabelPNG = PdfPrint.PdfProcessingToPng(LabelPath + TransportPackLabelPath, false);
                             TransportPackageLabelMD5 = TransportPackageLabelMD5New;
                             TransportPackageLabelZPL = string.Empty;
                             /* Проблема со скоростью перевода в hex. Ярлык kleenex картинкой больше 1МБ.

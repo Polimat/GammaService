@@ -19,6 +19,7 @@ namespace GammaService
         {
             this.ProductionTasks = new HashSet<ProductionTasks>();
             this.ProductItems = new HashSet<ProductItems>();
+            this.C1CCharacteristicProperties = new HashSet<C1CCharacteristicProperties>();
         }
     
         public System.Guid C1CCharacteristicID { get; set; }
@@ -38,5 +39,7 @@ namespace GammaService
         public virtual ICollection<ProductionTasks> ProductionTasks { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ProductItems> ProductItems { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<C1CCharacteristicProperties> C1CCharacteristicProperties { get; set; }
     }
 }

@@ -161,8 +161,7 @@ namespace GammaService.Common
                 newWidth = image.Width * maxHeight / image.Height;
                 newHeight = maxHeight;
             }
-
-            var res = new Bitmap(newWidth, newHeight);
+            var res = new Bitmap(newHeight, newWidth);
 
             using (var graphic = Graphics.FromImage(res))
             {
@@ -170,7 +169,10 @@ namespace GammaService.Common
                 graphic.SmoothingMode = SmoothingMode.HighQuality;
                 graphic.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 graphic.CompositingQuality = CompositingQuality.HighQuality;
-                graphic.DrawImage(image, 0, 0, newWidth, newHeight);
+                //graphic.TranslateTransform(newWidth, 0F);
+                graphic.TranslateTransform(newHeight/2,newWidth/2);
+                graphic.RotateTransform(90.0F);
+                graphic.DrawImage(image, -newWidth / 2, -newHeight/2, newWidth, newHeight);
             }
 
             return res;
@@ -181,7 +183,7 @@ namespace GammaService.Common
             return PdfProcessingToPng(sourceFilePath, false);
         }
 
-        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool scaling)
+        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool scaling = false, bool rotate = false)
         {
             FileStream pdfPathStream = null;
             MemoryStream mem = null;
@@ -197,8 +199,11 @@ namespace GammaService.Common
                     //string pageFilePath = Path.Combine(outputPath, "Page-" + pageNumber.ToString() + ".png");
                     using (var img = rasterizer.GetPage(Dpi, Dpi, pageNumber))
                     {
-                        var _imgRect = ImageResize(img, (int)(img.Width * (scaling ? 0.9 : 1)), img.Height, true, false);
-                        var _imgSave = PutOnCanvas(_imgRect, img.Width, img.Height, Color.White);
+                        //var _imgRect = ImageResize(img, (int)(img.Width * (scaling ? 0.9 : 1)), img.Height, true, false);
+                        var imgWidth = (scaling ? 1100 : img.Width);
+                        var imgHeight = (scaling ? 700 : img.Height);
+                        var _imgRect = ImageResize(img, imgWidth, imgHeight, false, false);
+                        var _imgSave = rotate ? PutOnCanvas(_imgRect, imgHeight, imgWidth, Color.White) : PutOnCanvas(_imgRect, imgWidth, imgHeight, Color.White);
                         _imgSave.Save(mem, ImageFormat.Png);
                     }
                 }
