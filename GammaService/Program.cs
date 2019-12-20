@@ -50,14 +50,27 @@ namespace GammaService
                     //myServiceHost = new ServiceHost(typeof(PrinterService));
                     ////myServiceHost.AddDefaultEndpoints();
                     //myServiceHost.Open();
-                    const string message = "Press ESC to stop; F5 to reinitialize devices; F2 to print status device; F8 to print message; F9 to print status input; F6 to print avilable printers";
-                    Common.Console.WriteLine(message);
+                    string message = ProgramVersion + ": Press ESC to stop; F5 to reinitialize devices; F2 to print status device; F8 to print message; F9 to print status input; F10 to print last printing label; F6 to print port recived; F3 to print avilable printers";
+                    Common.Console.WriteLine("NoModbusName",message);
                     ConsoleKey key;
                     do
                     {
                         key = System.Console.ReadKey(true).Key;
                         switch (key)
                         {
+                            case ConsoleKey.F2:
+                                foreach (var device in modbuseDevices)
+                                {
+                                    Common.Console.WriteLine(device.ModbusName, "Printer: " + device.PrinterName + ", ADAM: " + device.ModbusName + "(" + device.IpAddress + "), ServiceAddress: " + device.ServiceAddress + ", " + (device.IsConnected ? "IsConnected" : "Disconnected"));
+                                }
+                                Common.Console.WriteLine("NoModbusName", message);
+                                break;
+                            case ConsoleKey.F3:
+                                foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
+                                {
+                                    Common.Console.WriteLine("NoModbusName", printer);
+                                }
+                                break;
                             case ConsoleKey.F4://F4 to restart devices; not worked
                                 InitializeDevices();
                                 break;
@@ -67,12 +80,17 @@ namespace GammaService
                                     device.ReinitializeADAM();
                                 }
                                 break;
-                            case ConsoleKey.F2:
+                            case ConsoleKey.F6:
                                 foreach (var device in modbuseDevices)
                                 {
-                                    Common.Console.WriteLine("Printer: " + device.PrinterName + ", ADAM: " + device.ModbusName + "(" + device.IpAddress + "), ServiceAddress: " + device.ServiceAddress + ", " + (device.IsConnected ? "IsConnected" : "Disconnected"));
+                                    device.ChangePrintPortRecived();
                                 }
-                                Common.Console.WriteLine(message);
+                                break;
+                            case ConsoleKey.F7:
+                                foreach (var device in modbuseDevices)
+                                {
+                                    device.InStatus = !device.InStatus;
+                                }
                                 break;
                             case ConsoleKey.F8:
                                 foreach (var device in modbuseDevices)
@@ -86,16 +104,10 @@ namespace GammaService
                                     device.ChangePrintPortStatus();
                                 }
                                 break;
-                            case ConsoleKey.F6:
-                                foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
-                                {
-                                    Common.Console.WriteLine(printer);
-                                }
-                                break;
-                            case ConsoleKey.F7:
+                            case ConsoleKey.F10:
                                 foreach (var device in modbuseDevices)
                                 {
-                                    device.InStatus = !device.InStatus;
+                                    device.ChangePrintLastPrintingLabel();
                                 }
                                 break;
                         }
@@ -125,6 +137,13 @@ namespace GammaService
         public static List<ServiceHost> myServiceHosts;
         public static List<string> myServiceAddress;
         //private static ServiceHost myServiceHost = null;
+
+        private static string ProgramVersion
+        { get {
+                
+                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+        }
 
         public static void CloseProgram()
         {
@@ -172,7 +191,7 @@ namespace GammaService
                         if (mMailServiceAddress != String.Empty && (myServiceAddress.Count() == 0 || !myServiceAddress.Contains(mMailServiceAddress)))
                         {
                             myServiceAddress.Add(mMailServiceAddress);
-                            Common.Console.WriteLine(DateTime.Now + " : Будет запущен mail сервис по адресу " + mMailServiceAddress);
+                            Common.Console.WriteLine("NoModbusName", DateTime.Now + " : Будет запущен mail сервис по адресу " + mMailServiceAddress);
                         }
                     }
                     if (myServiceAddress.Count() == 0)
@@ -212,7 +231,7 @@ namespace GammaService
                             {
                                 //if (!(Program.ModbusDevicesID.Contains(-1)))
                                 {
-                                    Common.Console.WriteLine("There was a operation problem." + ieProblem.Message + ieProblem.StackTrace);
+                                    Common.Console.WriteLine("NoModbusName","There was a operation problem." + ieProblem.Message + ieProblem.StackTrace);
                                     Program.CloseProgram();
                                 }
                             }
@@ -221,7 +240,7 @@ namespace GammaService
                             {
                                 //if (!(Program.ModbusDevicesID.Contains(-1)))
                                 {
-                                    Common.Console.WriteLine("There was a communication problem." + commProblem.Message + commProblem.StackTrace);
+                                    Common.Console.WriteLine("NoModbusName","There was a communication problem." + commProblem.Message + commProblem.StackTrace);
                                     Program.CloseProgram();
                                 }
                             }

@@ -9,7 +9,7 @@ namespace GammaService
 {
     public static class Db
     {
-        public static Guid? CreateNewPallet(int placeId)
+        public static Guid? CreateNewPallet(int placeId, string modbusName)
         {
             try
             {
@@ -124,8 +124,8 @@ namespace GammaService
                     }
                     catch (Exception ex)
                     {
-                        Common.Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
-                        Common.Console.WriteLine(ex.Message + ":" + ex.InnerException);
+                        Common.Console.WriteLine(modbusName, $"{DateTime.Now}: Ошибка Создания паллеты в базе");
+                        Common.Console.WriteLine(modbusName, ex.Message + ":" + ex.InnerException);
                         return null;
                     }
                     return docId;
@@ -133,8 +133,8 @@ namespace GammaService
             }
             catch (Exception ex)
             {
-                Common.Console.WriteLine($"{DateTime.Now}: Ошибка Создания паллеты в базе");
-                Common.Console.WriteLine(ex.Message + ":" + ex.InnerException);
+                Common.Console.WriteLine(modbusName, $"{DateTime.Now}: Ошибка Создания паллеты в базе");
+                Common.Console.WriteLine(modbusName, ex.Message + ":" + ex.InnerException);
                 return null;
             }
         }

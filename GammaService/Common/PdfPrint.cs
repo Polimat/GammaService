@@ -20,7 +20,7 @@ namespace GammaService.Common
         public static extern bool GetDefaultPrinter(StringBuilder pszBuffer, ref int size);
         #endregion dll Wrappers
 
-        public static bool PrintPdfDocument(string pdfFileName, string printerName = null)
+        public static bool PrintPdfDocument(string pdfFileName, string printerName = null, string modbusName = "NoModbusName")
         {
             FileStream pdfPathStream = null;
                 
@@ -47,7 +47,7 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(modbusName, ex.Message);
                 return false;
             }
             finally
@@ -57,7 +57,7 @@ namespace GammaService.Common
             }
             }
 
-        public static bool PrintPNGDocument(byte[] imgPNG, string printerName = null)
+        public static bool PrintPNGDocument(byte[] imgPNG, string printerName = null, string modbusName = "NoModbusName")
         {
             FileStream pdfPathStream = null;
 
@@ -71,7 +71,7 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(modbusName, ex.Message);
                 return false;
             }
             finally
@@ -150,7 +150,7 @@ namespace GammaService.Common
            /// <param name="maxHeight">max height</param>  
            /// <param name="onlyResizeIfWider">if image width is smaller than newWidth use image width</param>  
            /// <returns>resized image</returns>  
-        public static Image ImageResize(Image image, int newWidth, int maxHeight, bool onlyResizeIfWider, bool resizeProportional = true, bool rotate = false)
+        public static Image ImageResize(Image image, int newWidth, int maxHeight, bool onlyResizeIfWider, bool resizeProportional = true, bool rotate = false, string modbusName = "NoModbusName")
         {
             if (onlyResizeIfWider && image.Width <= newWidth) newWidth = image.Width;
 
@@ -162,7 +162,7 @@ namespace GammaService.Common
                 newHeight = maxHeight;
             }
             var res = rotate ? new Bitmap(newHeight, newWidth) : new Bitmap(newWidth, newHeight);
-            Common.Console.WriteLine("Bitmap.Width=" + res.Width + " Bitmap.Height=" + res.Height + " rotate=" + rotate);
+            Common.Console.WriteLine(modbusName,"Bitmap.Width=" + res.Width + " Bitmap.Height=" + res.Height + " rotate=" + rotate);
             using (var graphic = Graphics.FromImage(res))
             {
                 graphic.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -188,7 +188,7 @@ namespace GammaService.Common
         //    return PdfProcessingToPng(sourceFilePath, false);
         //}
 
-        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool rotate = false, bool scaling = false, int? newWidth = null, int? newHeight = null)
+        public static MemoryStream PdfProcessingToPng (string sourceFilePath, bool rotate = false, bool scaling = false, int? newWidth = null, int? newHeight = null, string modbusName = "NoModbusName")
         {
             FileStream pdfPathStream = null;
             MemoryStream mem = null;
@@ -207,8 +207,8 @@ namespace GammaService.Common
                         //var _imgRect = ImageResize(img, (int)(img.Width * (scaling ? 0.9 : 1)), img.Height, true, false);
                         var imgWidth = (scaling && newWidth != null ? (int)newWidth : img.Width);
                         var imgHeight = (scaling && newHeight != null ? (int)newHeight : img.Height);
-                        Common.Console.WriteLine("img.Width=" + img.Width + " img.Height=" + img.Height + " scaling=" + scaling + " : imgWidth=" + imgWidth + " imgHeight=" + imgHeight);
-                        var _imgRect = ImageResize(img, imgWidth, imgHeight, false, false, rotate);
+                        Common.Console.WriteLine(modbusName,"img.Width=" + img.Width + " img.Height=" + img.Height + " scaling=" + scaling + " : imgWidth=" + imgWidth + " imgHeight=" + imgHeight);
+                        var _imgRect = ImageResize(img, imgWidth, imgHeight, false, false, rotate, modbusName);
                         var _imgSave = rotate ? PutOnCanvas(_imgRect, imgHeight, imgWidth, Color.White) : PutOnCanvas(_imgRect, imgWidth, imgHeight, Color.White);
                         _imgSave.Save(mem, ImageFormat.Png);
                     }
@@ -217,7 +217,7 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(modbusName, ex.Message);
                 return null;
             }
             finally
@@ -231,7 +231,7 @@ namespace GammaService.Common
 
         }
 
-        public static string PdfProcessingToPngFile(string SourcefilePath)
+        public static string PdfProcessingToPngFile(string SourcefilePath, string modbusName = "NoModbusName")
         {
             FileStream pdfPathStream = null;
             GhostscriptRasterizer rasterizer = null;
@@ -252,7 +252,7 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(modbusName, ex.Message);
                 return null;
             }
             finally

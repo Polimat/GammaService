@@ -56,7 +56,7 @@ namespace GammaService.Common
 		/// <param name="pdfFileName">Pdf File Name</param>
 		/// <param name="printerName">Printer Name</param>
 		/// <returns>true on success, false on failure</returns>
-		public static bool SendFileToPrinter(string pdfFileName, string printerName = null)
+		public static bool SendFileToPrinter(string pdfFileName, string printerName = null, string modbusName = "NoModbusName")
         {
             try
             {
@@ -100,7 +100,7 @@ namespace GammaService.Common
             }
             catch (Exception ex)
             {
-	            Console.WriteLine(ex.Message);
+	            Console.WriteLine(modbusName,ex.Message);
 				return false;
             }
         }

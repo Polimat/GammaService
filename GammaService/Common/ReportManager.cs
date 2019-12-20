@@ -14,7 +14,7 @@ namespace GammaService.Common
 			ReportSettings.ReportSettings.ShowProgress = false;
 		}
 
-		private static void PrintReport(Guid reportid, string printerName, Guid? paramId = null, int numCopies = 1, Image paramPNG = null)
+		private static void PrintReport(Guid reportid, string printerName, Guid? paramId = null, int numCopies = 1, Image paramPNG = null, string modbusName = "NoModbusName")
 		{
 			using (var report = new Report())
 			{
@@ -48,8 +48,8 @@ namespace GammaService.Common
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
-					Console.WriteLine(ex.Message);
+					Console.WriteLine(modbusName,$"{DateTime.Now}: Ошибка при печати амбалажа");
+					Console.WriteLine(modbusName,ex.Message);
 				}
 				finally
 				{
@@ -60,7 +60,7 @@ namespace GammaService.Common
 
 
 		public static bool PrintReport(string reportName, string printerName, string reportFolder = null,
-			Guid? paramId = null, int numCopies = 1, Image paramPNG = null)
+			Guid? paramId = null, int numCopies = 1, Image paramPNG = null, string modbusName = "NoModbusName")
 		{
 			try
 			{
@@ -76,8 +76,8 @@ namespace GammaService.Common
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"{DateTime.Now}: Ошибка при печати амбалажа");
-				Console.WriteLine(ex.Message);
+				Console.WriteLine(modbusName, $"{DateTime.Now}: Ошибка при печати амбалажа");
+				Console.WriteLine(modbusName, ex.Message);
 				return false;
 			}
 			return true;

@@ -84,12 +84,12 @@ namespace GammaService
             if (value != null)
             {
                 SignalChannelNumber = Convert.ToInt32(value);
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Параметр SignalChannelNumber установлен в " + SignalChannelNumber.ToString());
+                Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Параметр SignalChannelNumber установлен в " + SignalChannelNumber.ToString());
             }
             else
             {
                 SignalChannelNumber = 1;
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Внимание!!!! Параметр SignalChannelNumber не указан! (установлен по умолчанию в 1)");
+                Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Внимание!!!! Параметр SignalChannelNumber не указан! (установлен по умолчанию в 1)");
             }
             value = null;
             PlaceRemotePrinterSettings.TryGetValue("ErrorChannelNumber", out value);
@@ -103,16 +103,29 @@ namespace GammaService
             PlaceRemotePrinterSettings.TryGetValue("ReprintChannelNumber", out value);
             if (value != null)
                 ReprintChannelNumber = Convert.ToInt32(value);
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("IsPrintPortStatus", out value);
+            IsPrintPortStatus = value != null ? Convert.ToInt32(value) == 1 : false;
+            Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Параметр IsPrintPortStatus установлен в " + IsPrintPortStatus);
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("IsPrintLastPrintingLabel", out value);
+            IsPrintLastPrintingLabel = value != null ? Convert.ToInt32(value) == 1 : true;
+            Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Параметр IsPrintLastPrintingLabel установлен в " + IsPrintLastPrintingLabel);
+            value = null;
+            PlaceRemotePrinterSettings.TryGetValue("IsPrintPortRecived", out value);
+            IsPrintPortRecived = value != null ? Convert.ToInt32(value) == 1 : false;
+            Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Параметр IsPrintPortRecived установлен в " + IsPrintPortRecived);
+            value = null;
             PlaceRemotePrinterSettings.TryGetValue("MinDelayBetweenPrintingLabels_ms_", out value);
             if (value != null)
             {
                 MinDelayBetweenPrintingLabels = Convert.ToInt32(value);
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Параметр MinDelayBetweenPrintingLabels_ms_ установлен в " + MinDelayBetweenPrintingLabels.ToString() + " ms)");
+                Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Параметр MinDelayBetweenPrintingLabels_ms_ установлен в " + MinDelayBetweenPrintingLabels.ToString() + " ms)");
             }
             else
             {
                 MinDelayBetweenPrintingLabels = 200;
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Внимание!!!! Параметр MinDelayBetweenPrintingLabels_ms_ не указан! (установлен по умолчанию в 200 ms)");
+                Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :Внимание!!!! Параметр MinDelayBetweenPrintingLabels_ms_ не указан! (установлен по умолчанию в 200 ms)");
             }
             InitializeDevice(DeviceType, IpAddress, ModbusName);
             //PackageLabelPath = LoadPackageLabelPath(PlaceId, RemotePrinterLabelId);
@@ -145,7 +158,7 @@ namespace GammaService
             set
             {
                 _labelPNG = value;
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :LabelPNG Обновлен: " + LabelPNG.Length.ToString());
+                Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + PrinterName + " :LabelPNG Обновлен: " + LabelPNG.Length.ToString());
             }
         }
 
@@ -164,7 +177,7 @@ namespace GammaService
             {
                 _packageLabelPath = value;
                 //if (value != @"" && SaveLabelToPrinterZPL(value))
-                //    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Этикетка " + _packageLabelPath + " активирована");
+                //    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Этикетка " + _packageLabelPath + " активирована");
             }
         }
         /*
@@ -177,7 +190,7 @@ namespace GammaService
             {
                 _packageLabelPNG = value;
                 if (value != null && SaveLabelToPrinterPNG(value))
-                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Этикетка PNG активирована");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Этикетка PNG активирована");
             }
         }
 
@@ -190,7 +203,7 @@ namespace GammaService
             {
                 _packageLabelZPL = value;
                 if (value != null )//&& SaveLabelToPrinterZPL(value))
-                    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Этикетка ZPL активирована");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Этикетка ZPL активирована");
             }
         }
         */
@@ -207,7 +220,7 @@ namespace GammaService
                     LoadPackageLabelPNG(PlaceId, RemotePrinterLabelId);
                 }
                 _isEnabledService = value;
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Сервис " + (_isEnabledService ? "активирован" : " остановлен"));
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Сервис " + (_isEnabledService ? "активирован" : " остановлен"));
             }
         }
 
@@ -257,7 +270,7 @@ namespace GammaService
                 ReinitializeADAM();
                 if (!AdamModbus.Connected) return;
                 IsConnected = true;
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Связь восстановлена");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Связь восстановлена");
                 RestoreConnectTimer?.Dispose();
                 RestoreConnectTimer = null;
             }
@@ -272,7 +285,7 @@ namespace GammaService
 
         public bool ChangePrintMessageStatus()
         {
-            Common.Console.WriteLine("Print message status of " + ModbusName + " change to " + !IsPrintMessageStatus);
+            Common.Console.WriteLine(ModbusName, "Print message status of " + ModbusName + " change to " + !IsPrintMessageStatus);
             return IsPrintMessageStatus = !IsPrintMessageStatus;
         }
 
@@ -280,9 +293,26 @@ namespace GammaService
 
         public bool ChangePrintPortStatus()
         {
-            Common.Console.WriteLine("Print port status of " + ModbusName + " change to " + !IsPrintPortStatus);
+            Common.Console.WriteLine(ModbusName, "Print port status of " + ModbusName + " change to " + !IsPrintPortStatus);
             return IsPrintPortStatus = !IsPrintPortStatus;
         }
+
+        private bool IsPrintLastPrintingLabel { get; set; }
+
+        public bool ChangePrintLastPrintingLabel()
+        {
+            Common.Console.WriteLine(ModbusName, "Print last printing label of " + ModbusName + " change to " + !IsPrintLastPrintingLabel);
+            return IsPrintLastPrintingLabel = !IsPrintLastPrintingLabel;
+        }
+
+        private bool IsPrintPortRecived { get; set; }
+
+        public bool ChangePrintPortRecived()
+        {
+            Common.Console.WriteLine(ModbusName, "Print last printing label of " + ModbusName + " change to " + !IsPrintPortRecived);
+            return IsPrintPortRecived = !IsPrintPortRecived;
+        }
+
 
         public bool ChangePrinterStatus()
         {
@@ -300,18 +330,18 @@ namespace GammaService
                         try
                         {
                             AdamModbus.Disconnect();
-                            Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :Принудительная переинициализация ADAM (завис) " + IpAddress);
+                            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :Принудительная переинициализация ADAM (завис) " + IpAddress);
                         }
                         catch (Exception ex)
                         {
-                            Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :AdamModbus.Disconnect() выпал в ошибку " + IpAddress);
-                            Common.Console.WriteLine(ex);
+                            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :AdamModbus.Disconnect() выпал в ошибку " + IpAddress);
+                            Common.Console.WriteLine(ModbusName, ex);
                         }
                     }
                     countReadCoilStatusFalse = 0;
                     IsConnected = false;
                     if (RestoreConnectTimer != null) return;
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :Пропала связь");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :Пропала связь");
                     RestoreConnectTimer = new Timer(RestoreConnect, null, 0, 1000);
                     return;
                 }
@@ -320,7 +350,7 @@ namespace GammaService
                 bool[] bDiData, bDoData, bData;
                 //            if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
                 //                !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData)) return;
-                if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Опрос адама " + IpAddress + " Статус: " + AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData).ToString() + "/" + AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData).ToString());
+                if (IsPrintPortStatus) Common.Console.WriteLineWindow(10, ModbusName, DateTime.Now + " :" + PrinterName + " :Опрос адама " + IpAddress + " Статус: " + AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData).ToString() + "/" + AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData).ToString());
                 if (!AdamModbus.Modbus().ReadCoilStatus(iDiStart, m_iDiTotal, out bDiData) ||
                 !AdamModbus.Modbus().ReadCoilStatus(iDoStart, m_iDoTotal, out bDoData))
                 {
@@ -328,7 +358,7 @@ namespace GammaService
                     return;
                 }
                 countReadCoilStatusFalse = 0;
-                if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + "                        :Опрос адама " + IpAddress + " после проверки статуса");
+                //if (IsPrintPortStatus) Common.Console.WriteLine10(DateTime.Now + " :" + ModbusName + "                        :Опрос адама " + IpAddress + " после проверки статуса");
                 OnDIDataReceived?.Invoke(bDiData);
                 /*
                 iChTotal = m_iDiTotal + m_iDoTotal;
@@ -337,7 +367,7 @@ namespace GammaService
                 Array.Copy(bDiData, 0, bData, 0, m_iDiTotal);
                 Array.Copy(bDoData, 0, bData, m_iDiTotal, m_iDoTotal);
                 InStatus = bData[SignalChannelNumber-1];
-                if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " Состояние на входе: " + InStatus.ToString());
+                if (IsPrintPortStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " Состояние на входе: " + InStatus.ToString());
                 */
             }
         }
@@ -352,13 +382,13 @@ namespace GammaService
                 if (AdamModbus.Connect(ipAddress, ProtocolType.Tcp, 502))
                 {
                     if (RestoreConnectTimer == null)
-                        Common.Console.WriteLine(DateTime.Now + " :" + modbusName + " :Инициализация ADAM прошла успешно.");
+                        Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + modbusName + " :Инициализация ADAM прошла успешно.");
                     IsConnected = true;
                 }
                 else
                 {
                     if (RestoreConnectTimer == null)
-                        Common.Console.WriteLine(DateTime.Now + " :" + modbusName + " :Не удалось инициализировать ADAM.");
+                        Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + modbusName + " :Не удалось инициализировать ADAM.");
                     IsConnected = false;
                 }
             }
@@ -425,14 +455,14 @@ namespace GammaService
                         }
                     };
                         SendSignal(outSignals);
-                        if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " Выход " + ErrorChannelNumber + "; Сигнал " + _isErrorPrinting);
+                        if (IsPrintPortStatus) Common.Console.WriteLineWindow(10, ModbusName,DateTime.Now + " :" + ModbusName + " Выход " + ErrorChannelNumber + "; Сигнал " + _isErrorPrinting);
                     }
                     catch (Exception)
                     {
-                        Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + ":Ошибка! Не удалось отправить сигнал " + _isErrorPrinting + " на выход " + ErrorChannelNumber);
+                        Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + ":Ошибка! Не удалось отправить сигнал " + _isErrorPrinting + " на выход " + ErrorChannelNumber);
                     }
                 }
-                //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
+                //Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
             }
         }
 
@@ -447,7 +477,7 @@ namespace GammaService
                 _inResetError = value;
                 if (InResetError) return;
                 IsErrorPrinting = false;
-                //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
+                //Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
             }
         }
 
@@ -485,7 +515,7 @@ namespace GammaService
                             PrintLabelId1(1);
                             break;
                         default:
-                            Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
+                            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Неопределенный вид этикетки!: " + InStatus.ToString());
                             break;
                     }
                     lastPrintingLabel = DateTime.Now;
@@ -500,29 +530,31 @@ namespace GammaService
             set
             {
                 _lastPrintingLabel = value;
-                Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " lastPrintingLabel: " + _lastPrintingLabel.ToString());
+                if (IsPrintLastPrintingLabel)
+                    Common.Console.WriteLineWindow(4, ModbusName,DateTime.Now + " :" + ModbusName + " :" + PrinterName + " lastPrintingLabel: " + _lastPrintingLabel.ToString());
+
             }
         }
 
         private void PrintLabelId1(int numCopies = 2)
         {
-            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            //Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
             //TimeSpan span = DateTime.Now - _lastPrintingLabel;
             //if (span.TotalMilliseconds > MinDelayBetweenPrintingLabels)
             {
-                var docId = Db.CreateNewPallet(PlaceId);
+                var docId = Db.CreateNewPallet(PlaceId, ModbusName);
                 if (docId == null)
                 {
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
                     return;
                 }
-                Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                Common.Console.WriteLineWindow(4, ModbusName,DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
                 //_lastPrintingLabel = DateTime.Now;
                 if (ReportManager.PrintReport("Амбалаж", PrinterName, "Pallet", docId, numCopies)) return;
                 FaultIds.Enqueue((Guid)docId);
                 if (!FaultPrintTaskIsRunning)
                 {
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " PrintReport из очереди печати");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " PrintReport из очереди печати");
                     Task.Factory.StartNew(PrintFromQueue);
                 }
             }
@@ -530,19 +562,19 @@ namespace GammaService
 
         private void PrintLabelId5()
         {
-            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            //Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
             //TimeSpan span = DateTime.Now - _lastPrintingLabel;
             //if (span.TotalMilliseconds > MinDelayBetweenPrintingLabels)
             {
-                var docId = Db.CreateNewPallet(PlaceId);
+                var docId = Db.CreateNewPallet(PlaceId,ModbusName);
                 if (docId == null)
                 {
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
                     return;
                 }
-                Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                Common.Console.WriteLineWindow(4, ModbusName,DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
                 //_lastPrintingLabel = DateTime.Now;
-                Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " LabelPNG: " + LabelPNG.Length.ToString());
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " LabelPNG: " + LabelPNG.Length.ToString());
                 if (LabelPNG != null)
                 {
                     using (Image image = Image.FromStream(new MemoryStream(LabelPNG)))
@@ -554,23 +586,23 @@ namespace GammaService
                     };
                 }
                 else
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
             }
         }
 
         private void PrintLabelId4()
         {
-            //Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
+            //Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Создана новая паллета: " + InStatus.ToString());
             //TimeSpan span = DateTime.Now - _lastPrintingLabel;
             //if (span.TotalMilliseconds > MinDelayBetweenPrintingLabels)
             {
-                var docId = Db.CreateNewPallet(PlaceId);
+                var docId = Db.CreateNewPallet(PlaceId, ModbusName);
                 if (docId == null)
                 {
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
+                    Common.Console.WriteLine(ModbusName,DateTime.Now + " :" + ModbusName + " :" + PrinterName + " :Ошибка! Новая паллета не создана!");
                     return;
                 }
-                Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
+                Common.Console.WriteLineWindow(4, ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Создана новая паллета: " + docId.ToString());
                 //_lastPrintingLabel = DateTime.Now;
                 //PrintLabelZPL(); 
                 if (LabelPNG != null)
@@ -582,45 +614,45 @@ namespace GammaService
                     };
                 }
                 else
-                    Common.Console.WriteLine(DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
+                    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + ModbusName + " :" + PrinterName + " Нет этикетки в формате PNG. Ошибка при печати паллеты: " + docId.ToString());
 
             }
         }
 
         private void PrintLabelId3()
         {
-            if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать групповой этикетки через диспетчер печати: " + InStatus.ToString());
+            if (IsPrintMessageStatus) Common.Console.WriteLineWindow(4, ModbusName,DateTime.Now + " :" + PrinterName + " :Печать групповой этикетки через диспетчер печати: " + InStatus.ToString());
             PrintLabelPNG();
             /*if (PackageLabelPath != null)
                 PrintLabel(PackageLabelPath);
             else
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати групповой этикетки произошла ошибка (путь до этикетки не указан)");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати групповой этикетки произошла ошибка (путь до этикетки не указан)");
                 IsErrorPrinting = true;
             }*/
         }
 
         private void PrintLabelId2()
         {
-            if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать групповой этикетки напрямую в принтер: " + InStatus.ToString());
+            if (IsPrintMessageStatus) Common.Console.WriteLineWindow(4, ModbusName,DateTime.Now + " :" + PrinterName + " :Печать групповой этикетки напрямую в принтер: " + InStatus.ToString());
             //if (PackageLabelPath != null)
             PrintLabelZPL();
             //else
-            //    Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати групповой этикетки произошла ошибка (путь до этикетки не указан)");
+            //    Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати групповой этикетки произошла ошибка (путь до этикетки не указан)");
         }
 
         public bool SaveLabelToPrinterPNG(string pdfPath)
         {
             if (pdfPath == string.Empty)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Пустое имя файла этикетки для загрузки");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Пустое имя файла этикетки для загрузки");
                 //isPrinting = false;
                 return false;
             }
             /*var memStream = PdfPrint.PdfProcessingToPng(pdfPath);
             if (memStream == null)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При загрузке этикетки " + pdfPath + " в принтер произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При загрузке этикетки " + pdfPath + " в принтер произошла ошибка");
                 return false;
             }
             */
@@ -632,7 +664,7 @@ namespace GammaService
         {
             if (imagePNG == null)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Пустой файла этикетки для загрузки");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Пустой файла этикетки для загрузки");
                 //isPrinting = false;
                 return false;
             }
@@ -643,7 +675,7 @@ namespace GammaService
         public bool SavePngToPrinterZPL(MemoryStream memStream)
         {
             string zplImageData = string.Empty;
-            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Начата загрузке этикетки в принтер");
+            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Начата загрузке этикетки в принтер");
             //Make sure no transparency exists. I had some trouble with this. This PNG has a white background
             /* string filePath = PdfPrint.PdfProcessingToPngFile(pdfPath); 
              byte[] binaryData = System.IO.File.ReadAllBytes(filePath);
@@ -658,13 +690,13 @@ namespace GammaService
             //var memStream = PdfPrint.PdfProcessingToPng(pdfPath);
             if (memStream == null)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При загрузке этикетки  в принтер произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При загрузке этикетки  в принтер произошла ошибка");
                 return false;
             }
 
-            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Начато конвертирование этикетки для загрузки в принтер");
+            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Начато конвертирование этикетки для загрузки в принтер");
             memStream.Seek(0, SeekOrigin.Begin);
-            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Спозиционировано на начало этикетки для загрузки в принтер");
+            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Спозиционировано на начало этикетки для загрузки в принтер");
             int count = 0;
             while (count < memStream.Length)
             {
@@ -675,23 +707,23 @@ namespace GammaService
                 count++;
             }
             //Common.Console.WriteLine(zplImageData);
-            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Закончено конвертирование этикетки для загрузки в принтер");
+            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Закончено конвертирование этикетки для загрузки в принтер");
             return SavePngToPrinterZPL(zplImageData, memStream.Length);
         }
 
         public bool SavePngToPrinterZPL(string zplImageData, long ImageZize)
         {
             string zplToSend = "^XA" + /*"^MNN" + "^LL500" +*/ "~DYE:LABEL,P,P," + ImageZize.ToString() + ",," + zplImageData + "^XZ";
-            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :" + ImageZize.ToString());
+            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :" + ImageZize.ToString());
             if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, zplToSend))
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При загрузке этикетки в принтер произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При загрузке этикетки в принтер произошла ошибка");
                 //isPrinting = false;
                 return false;
             }
             else
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Загрузке этикетки в принтер произведена успешно");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Загрузке этикетки в принтер произведена успешно");
                 //isPrinting = false;
             }
             return true;
@@ -702,14 +734,14 @@ namespace GammaService
             //isPrinting = true;
             if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, s))
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При отправке команды " + s + " произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При отправке команды " + s + " произошла ошибка");
                 IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Отправка команды " + s + " произведена успешно");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Отправка команды " + s + " произведена успешно");
                 IsErrorPrinting = false;
                 //isPrinting = false;
             }
@@ -721,14 +753,14 @@ namespace GammaService
             string printImage = "^XA^FO0,0^IME:LABEL.PNG^FS^XZ";
             if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, printImage))
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
                 IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
                 IsErrorPrinting = false;
                 //isPrinting = false;
             }
@@ -746,12 +778,12 @@ namespace GammaService
                 // Close Connection
                 writer.Close();
                 client.Close();
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
             }
             catch (Exception ex)
             {
                 // Catch Exception
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
             }*/
         }
 
@@ -761,14 +793,14 @@ namespace GammaService
             string printImage = "^XA^FO0,0^IME:LABEL.PNG^FS^XZ";
             if (!RawPrinterHelper.SendStringToPrinter(RemotePrinterIpAdress, RemotePrinterPort, printImage))
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
                 IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
                 IsErrorPrinting = false;
                 //isPrinting = false;
             }
@@ -786,28 +818,28 @@ namespace GammaService
                 // Close Connection
                 writer.Close();
                 client.Close();
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
             }
             catch (Exception ex)
             {
                 // Catch Exception
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
             }*/
         }
 
         public void PrintLabel(string pdfPath)
         {
             //isPrinting = true;
-            if (pdfPath.Substring(pdfPath.Length - 3, 3).ToUpper() == "PDF" ? !PdfPrint.PrintPdfDocument(pdfPath, PrinterName) : !PrintImage.SendImageToPrinter(pdfPath, PrinterName))
+            if (pdfPath.Substring(pdfPath.Length - 3, 3).ToUpper() == "PDF" ? !PdfPrint.PrintPdfDocument(pdfPath, PrinterName, ModbusName) : !PrintImage.SendImageToPrinter(pdfPath, PrinterName, ModbusName))
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :При печати произошла ошибка");
                 IsErrorPrinting = true;
                 //isPrinting = false;
                 return;
             }
             else
             {
-                if (IsPrintMessageStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
+                if (IsPrintMessageStatus) Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Печать произведена успешно");
                 IsErrorPrinting = false;
                 //isPrinting = false;
             }
@@ -817,12 +849,12 @@ namespace GammaService
         {
             if (LabelPNG == null)
             {
-                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
+                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
                 //return false;
             }
             if (RemotePrinterLabelId == 3)
             {
-                PdfPrint.PrintPNGDocument(LabelPNG, PrinterName);
+                PdfPrint.PrintPNGDocument(LabelPNG, PrinterName, ModbusName);
             }
         }
 
@@ -879,8 +911,8 @@ namespace GammaService
             {
                 return;
             }
-            //if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " :"+ PrinterName + " :" + (inputPrint - 1).ToString() + ": " + !diData[inputPrint - 1] + "  " + (inputApplicatorReady - 1).ToString() + ": " + !diData[inputApplicatorReady - 1] + " Этикетка для печати: " + (labelReady ? "готова" : "не готова") + "  Аппликатор: " + (ApplicatorReady ? "готов" : "не готов"));
-            if (IsPrintPortStatus) Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :" + (SignalChannelNumber - 1).ToString() + ": " + diData[SignalChannelNumber - 1]);
+            if (IsPrintPortRecived) Common.Console.WriteLineWindow(10, ModbusName,DateTime.Now + " :" + PrinterName + " : Вход " + (SignalChannelNumber - 1).ToString() + ": Значение " + diData[SignalChannelNumber - 1]+"                                 ");
+            
             //for (int i = 0; i <= 5; i++)
             //{
             //    Common.Console.WriteLine(i + " " + diData[i].ToString() + " " + DateTime.Now);
@@ -956,7 +988,7 @@ namespace GammaService
             }
             catch (Exception e)
             {
-                Common.Console.WriteLine(e);
+                Common.Console.WriteLine(ModbusName, e);
                 return false;
             }
         }
@@ -997,20 +1029,20 @@ namespace GammaService
                         }
                         if (LabelPNG == null)
                         {
-                            Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
+                            Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :В текущем задании нет сохраненной этикетки!");
                             return false;
                         }
                         if (remotePrinterLabelId == 2 || remotePrinterLabelId == 4)
                         {
                             if (LabelZPL != String.Empty & LabelZPL != null)
                             {
-                                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Вариант ZPL!");
+                                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Вариант ZPL!");
                                 SavePngToPrinterZPL(LabelZPL, LabelPNG.Length);
                             }
                             else
                             {
                                 //PackageLabelPNG = LabelPNG;
-                                Common.Console.WriteLine(DateTime.Now + " :" + PrinterName + " :Вариант PNG!");
+                                Common.Console.WriteLine(ModbusName, DateTime.Now + " :" + PrinterName + " :Вариант PNG!");
                                 SaveLabelToPrinterPNG(LabelPNG);
                             }
                         }
@@ -1026,7 +1058,7 @@ namespace GammaService
             }
             catch (Exception e)
             {
-                Common.Console.WriteLine(e);
+                Common.Console.WriteLine(ModbusName, e);
                 return false;
             }
         }
