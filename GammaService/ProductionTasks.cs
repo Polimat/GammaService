@@ -29,6 +29,8 @@ namespace GammaService
         public decimal Quantity { get; set; }
         public Nullable<System.DateTime> DateBegin { get; set; }
         public Nullable<System.DateTime> DateEnd { get; set; }
+        public Nullable<System.Guid> C1CSpecificationID { get; set; }
+        public string Number { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ActiveProductionTasks> ActiveProductionTasks { get; set; }

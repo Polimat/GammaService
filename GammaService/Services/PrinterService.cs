@@ -231,10 +231,22 @@ namespace GammaService.Services
                         gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
                             .Select(p => p.GroupPackLabelMD5)
                             .FirstOrDefault();
-                    var GroupPackLabelPath = 
-                    gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
-                            .Select(p => p.PackageLabelPath)
+                    var characteristic =
+                        gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
+                            //.Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
+                    string GroupPackLabelPath = null;
+                    if (characteristic != null && characteristic.PackageLabelPath != null)
+                        if (File.Exists(LabelPath + characteristic.PackageLabelPath))
+                        {
+                            GroupPackLabelPath = characteristic.PackageLabelPath;
+                        }
+                        else
+                        {
+                            GroupPackLabelPath = characteristic.C1COldCharacteristicID == null ? null : gammaBase.C1CCharacteristics.Where(p => p.C1CCharacteristicID == characteristic.C1COldCharacteristicID)
+                                .Select(p => p.PackageLabelPath)
+                                .FirstOrDefault();
+                        }
                     Place =
                         gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                             .FirstOrDefault();
@@ -341,19 +353,32 @@ namespace GammaService.Services
                         gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
                             .Select(p => p.TransportPackLabelMD5)
                             .FirstOrDefault();
-                    var TransportPackLabelPath = 
+                    var characteristic = 
                         gammaBase.C1CCharacteristics.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
-                            .Select(p => p.PackageLabelPath)
+                            //.Select(p => p.PackageLabelPath)
                             .FirstOrDefault();
+                    string TransportPackLabelPath = null;
+                    if (characteristic != null && characteristic.PackageLabelPath != null)
+                        if (File.Exists(LabelPath + characteristic.PackageLabelPath.Replace("lab_gr", "lab_tr")))
+                        {
+                            TransportPackLabelPath = characteristic.PackageLabelPath.Replace("lab_gr", "lab_tr");
+                        }
+                        else
+                        {
+                            TransportPackLabelPath = characteristic.C1COldCharacteristicID == null ? null : gammaBase.C1CCharacteristics.Where(p => p.C1CCharacteristicID == characteristic.C1COldCharacteristicID)
+                                .Select(p => p.PackageLabelPath)
+                                .FirstOrDefault()
+                                .Replace("lab_gr", "lab_tr");
+                        }
                     Place =
-                        gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
-                            .Select(p => p.Name)
-                            .FirstOrDefault();
+                            gammaBase.Places.Where(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
+                                .Select(p => p.Name)
+                                .FirstOrDefault();
                     var TransportPackageLabelZPL =
                         gammaBase.ProductionTaskConverting.Where(p => p.ProductionTaskID == productionTaskId)
                             .Select(p => p.TransportPackLabelZPL)
                             .FirstOrDefault();
-                    TransportPackLabelPath = TransportPackLabelPath?.Replace("lab_gr", "lab_tr");
+                    //TransportPackLabelPath = TransportPackLabelPath?.Replace("lab_gr", "lab_tr");
                     var TransportPackageLabelMD5New = GetGroupPackageLabelMD5(LabelPath + TransportPackLabelPath);
                     Common.Console.WriteLine("NoModbusName", DateTime.Now + " : Загружены данные для обновления транспортной этикетки " + TransportPackLabelPath + " на переделе " + Place + " в задании " + productionTaskId.ToString());
                     Common.Console.WriteLine("NoModbusName", DateTime.Now + " :TransportPackageLabelMD5: " + TransportPackageLabelMD5?.ToString());

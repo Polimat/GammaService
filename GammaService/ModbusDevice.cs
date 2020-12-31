@@ -965,9 +965,21 @@ namespace GammaService
                         var outPathLabels = gammaBase.LocalSettings
                             .FirstOrDefault()
                             .LabelPath;
-                        var outPath = gammaBase.C1CCharacteristics
-                            .First(c => c.ProductionTasks.Any(p => p.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId)))
-                            .PackageLabelPath;
+                        var characteristic =
+                        gammaBase.C1CCharacteristics
+                            .FirstOrDefault(c => c.ProductionTasks.Any(p => p.ActiveProductionTasks.Any(pt => pt.PlaceID == placeId)));
+                        string outPath = null;
+                        if (characteristic != null && characteristic.PackageLabelPath != null)
+                            if (File.Exists(outPathLabels + characteristic.PackageLabelPath))
+                            {
+                                outPath = characteristic.PackageLabelPath;
+                            }
+                            else
+                            {
+                                outPath = characteristic.C1COldCharacteristicID == null ? null : gammaBase.C1CCharacteristics.Where(p => p.C1CCharacteristicID == characteristic.C1COldCharacteristicID)
+                                    .Select(p => p.PackageLabelPath)
+                                    .FirstOrDefault();
+                            }
                         //var inPath = gammaBase.Places.First(p => p.ProductionTasks.Any(pt => pt.ProductionTaskID == productionTaskId))
                         //    .ApplicatorLabelPath;
                         if (string.IsNullOrEmpty(outPathLabels + outPath))// || string.IsNullOrEmpty(inPath))
